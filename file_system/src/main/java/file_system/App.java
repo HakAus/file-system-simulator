@@ -4,9 +4,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,19 +14,29 @@ import java.io.IOException;
 
 public class App extends Application {
 
-    private static Scene scene;
+    private static Parent startup, window;
+    private static Stage stage;
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage pStage) throws IOException {
 
-        Scene scene = new Scene(loadFXML("primary"));
+        stage = pStage;
+        startup = loadFXML("startup");
+        window = loadFXML("window");
 
+        // Initial setup
+        Scene scene = new Scene(startup);
         stage.setScene(scene);
         stage.show();
     }
 
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
+    static void switchScene(String sceneName) {
+        if (sceneName == "window") {
+            stage.setScene(new Scene(window));
+        }
+        if (sceneName == "startup") {
+            stage.setScene(new Scene(startup));
+        }
     }
 
     private static Parent loadFXML(String fxml) throws IOException {

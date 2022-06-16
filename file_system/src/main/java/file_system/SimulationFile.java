@@ -7,7 +7,7 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class File {
+public class SimulationFile {
 
     // Atributes
     private int start, end;
@@ -16,7 +16,7 @@ public class File {
     private LongProperty lastModified;
 
     // Constructors
-    File() {
+    SimulationFile() {
         start = 0;
         end = 0;
         isDirectory = new SimpleBooleanProperty();
@@ -24,7 +24,7 @@ public class File {
         lastModified = new SimpleLongProperty();
     }
 
-    File(int pStart, int pEnd, boolean pIsDirectory, String pName, long pLastModified) {
+    SimulationFile(int pStart, int pEnd, boolean pIsDirectory, String pName, long pLastModified) {
         start = pStart;
         end = pEnd;
         isDirectory = new SimpleBooleanProperty(pIsDirectory);
