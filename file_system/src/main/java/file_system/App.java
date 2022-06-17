@@ -16,6 +16,7 @@ public class App extends Application {
 
     private static Parent startup, window;
     private static Stage stage;
+    private static Scene scene;
 
     @Override
     public void start(Stage pStage) throws IOException {
@@ -25,17 +26,17 @@ public class App extends Application {
         window = loadFXML("window");
 
         // Initial setup
-        Scene scene = new Scene(startup);
+        scene = new Scene(startup);
         stage.setScene(scene);
         stage.show();
     }
 
     static void switchScene(String sceneName) {
         if (sceneName == "window") {
-            stage.setScene(new Scene(window));
+            scene.setRoot(window);
         }
         if (sceneName == "startup") {
-            stage.setScene(new Scene(startup));
+            scene.setRoot(startup);
         }
     }
 

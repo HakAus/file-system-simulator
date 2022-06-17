@@ -3,33 +3,34 @@ package file_system;
 public class Sector {
 
     // Atributes
-    private int position, next;
+    private long position;
+    private Sector next;
 
     // Constructors
     Sector() {
         position = 0;
-        next = 0;
+        next = null;
     }
 
-    Sector(int pPosition, int pNext) {
+    Sector(long pPosition, Sector pNext) {
         position = pPosition;
         next = pNext;
     }
 
     // Methods
-    public int getPosition() {
+    public long getPosition() {
         return position;
     }
 
-    public void setPosition(int value) {
+    public void setPosition(long value) {
         position = value;
     }
 
-    public int getNext() {
+    public Sector getNext() {
         return next;
     }
 
-    public void setNext(int value) {
+    public void setNext(Sector value) {
         next = value;
     }
 

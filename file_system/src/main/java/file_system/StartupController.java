@@ -6,8 +6,6 @@ import java.io.IOException;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
@@ -39,13 +37,14 @@ public class StartupController {
         }
 
         // Write initial data for disc
-        int sectorSize = Integer.parseInt(txtSectorSize.getText());
-        int sectorAmount = Integer.parseInt(txtSectorAmount.getText());
+        FileSystem.sectorSize = Integer.parseInt(txtSectorSize.getText());
+        FileSystem.sectorAmount = Integer.parseInt(txtSectorAmount.getText());
+        FileSystem.freeSpace = FileSystem.sectorSize * FileSystem.sectorAmount;
 
         try {
             FileWriter myWriter = new FileWriter(Constants.DISC_PATH);
-            char[] cbuf = new char[sectorSize * sectorAmount];
-            for (int i = 0; i < sectorSize * sectorAmount; i++) {
+            char[] cbuf = new char[FileSystem.sectorSize * FileSystem.sectorAmount];
+            for (int i = 0; i < FileSystem.sectorSize * FileSystem.sectorAmount; i++) {
                 cbuf[i] = '0';
             }
             myWriter.write(cbuf);

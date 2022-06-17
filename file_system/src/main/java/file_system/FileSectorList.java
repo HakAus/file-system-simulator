@@ -14,4 +14,8 @@ public class FileSectorList {
     public Sector getOrigin() {
         return origin;
     }
+
+    public addSector() {
+        
+    }
 }

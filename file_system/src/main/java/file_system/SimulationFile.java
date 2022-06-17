@@ -1,39 +1,76 @@
 package file_system;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.control.TreeCell;
 
-public class SimulationFile {
+public class SimulationFile extends TreeCell<String> {
 
     // Atributes
-    private int start, end;
+    private long start, end, size;
     private BooleanProperty isDirectory;
     private StringProperty name;
-    private LongProperty lastModified;
+    private Date lastModified;
+    private ArrayList<SimulationFile> files;
+    private ArrayList<Long> sectors;
 
     // Constructors
     SimulationFile() {
-        start = 0;
-        end = 0;
+        start = end = size = 0;
         isDirectory = new SimpleBooleanProperty();
         name = new SimpleStringProperty();
-        lastModified = new SimpleLongProperty();
+        lastModified = new Date();
+        sectors = new ArrayList<Long>();
     }
 
-    SimulationFile(int pStart, int pEnd, boolean pIsDirectory, String pName, long pLastModified) {
+    SimulationFile(long pStart, long pEnd, long pSize, String pName,
+            Date pLastModified, ArrayList<Long> pSectors) {
         start = pStart;
         end = pEnd;
-        isDirectory = new SimpleBooleanProperty(pIsDirectory);
+        size = pSize;
+        isDirectory = new SimpleBooleanProperty(false);
         name = new SimpleStringProperty(pName);
-        lastModified = new SimpleLongProperty(pLastModified);
+        lastModified = pLastModified;
+        sectors = pSectors;
+    }
+
+    SimulationFile(String pName, Date pLastModified) {
+        start = end = -1;
+        isDirectory = new SimpleBooleanProperty(true);
+        name = new SimpleStringProperty(pName);
+        lastModified = pLastModified;
+        sectors = null;
     }
 
     // Methods
-    public int getStart() {
+    @Override
+    public void updateItem(String simFile, boolean empty) {
+        super.updateItem(simFile, empty);
+        if (empty) {
+            setText(null);
+            setGraphic(null);
+        } else {
+            setText(simFile);
+            setGraphic(getTreeItem().getGraphic());
+        }
+    }
+
+    public void addFile(SimulationFile file) {
+        file.setIsDirectory(false);
+        files.add(file);
+    }
+
+    public void addDirectory(SimulationFile directory) {
+        directory.setIsDirectory(true);
+        files.add(directory);
+    }
+
+    public long getStart() {
         return start;
     }
 
@@ -41,7 +78,7 @@ public class SimulationFile {
         start = value;
     }
 
-    public int getEnd() {
+    public long getEnd() {
         return end;
     }
 
@@ -49,7 +86,15 @@ public class SimulationFile {
         end = value;
     }
 
-    public void setIsDrectory(boolean value) {
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(int value) {
+        size = value;
+    }
+
+    public void setIsDirectory(boolean value) {
         isDirectoryProperty().set(value);
     }
 
@@ -77,17 +122,11 @@ public class SimulationFile {
         return name;
     }
 
-    public void setLastModified(long value) {
-        lastModifiedProperty().set(value);
+    public void setLastModified(Date date) {
+        lastModified = date;
     }
 
-    public long getLastModified() {
-        return lastModifiedProperty().get();
-    }
-
-    public LongProperty lastModifiedProperty() {
-        if (lastModified == null)
-            lastModified = new SimpleLongProperty(this, "lastModified");
+    public Date getLastModified() {
         return lastModified;
     }
 

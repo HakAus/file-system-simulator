@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane fx:id="window" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="file_system.WindowController">
+<GridPane fx:id="window" prefHeight="619.0" prefWidth="797.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="file_system.WindowController">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="225.0" minWidth="10.0" prefWidth="190.0" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="204.0" minWidth="10.0" prefWidth="204.0" />
@@ -30,23 +30,24 @@
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+      <RowConstraints />
    </rowConstraints>
    <children>
       <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="4">
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="btnAddFile" alignment="CENTER" mnemonicParsing="false" onAction="#addFile" text="Add File">
+                  <Button fx:id="btnAddFile" alignment="CENTER" mnemonicParsing="false" onAction="#addFile" prefHeight="25.0" prefWidth="88.0" text="Add File">
                      <HBox.margin>
                         <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="btnAddDirectory" alignment="CENTER" mnemonicParsing="false" onAction="#addDirectory" text="Add Directory">
+                  <Button fx:id="btnAddDirectory" alignment="CENTER" mnemonicParsing="false" onAction="#addDirectory" prefHeight="25.0" prefWidth="116.0" text="Add Directory">
                      <HBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
                   </Button>
-                  <TextField fx:id="txtSearchBox" promptText="example.ext" HBox.hgrow="ALWAYS">
+                  <TextField fx:id="txtSearchBox" prefHeight="25.0" prefWidth="441.0" promptText="example.ext">
                      <HBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </HBox.margin>
@@ -69,15 +70,65 @@
             </HBox>
          </children>
       </VBox>
-      <TreeView fx:id="explorer" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.rowSpan="10">
-         <GridPane.margin>
-            <Insets bottom="10.0" left="10.0" />
-         </GridPane.margin></TreeView>
-      <HBox alignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-      <TextArea fx:id="editor" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" GridPane.rowSpan="9">
+      <GridPane fx:id="fileEditor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="522.0" prefWidth="600.0" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+         <columnConstraints>
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="174.0" minWidth="10.0" prefWidth="110.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="10.0" prefWidth="130.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="10.0" prefWidth="106.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="111.0" minWidth="10.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="103.0" minWidth="10.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <TextField fx:id="txtFilename" GridPane.columnIndex="1" GridPane.columnSpan="2">
+               <GridPane.margin>
+                  <Insets right="5.0" />
+               </GridPane.margin>
+            </TextField>
+            <Label alignment="CENTER" text="Filename:">
+               <GridPane.margin>
+                  <Insets left="5.0" />
+               </GridPane.margin>
+            </Label>
+            <Button fx:id="btnSaveFile" alignment="CENTER" mnemonicParsing="false" onAction="#saveFile" prefHeight="25.0" prefWidth="60.0" text="Save" GridPane.columnIndex="4" />
+            <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#cancelSaveFile" prefWidth="60.0" text="Cancel" GridPane.columnIndex="5">
+               <GridPane.margin>
+                  <Insets right="5.0" />
+               </GridPane.margin>
+            </Button>
+            <TextArea fx:id="txtFileContent" prefHeight="440.0" prefWidth="580.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
+               <GridPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" />
+               </GridPane.margin>
+            </TextArea>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+               <children>
+                  <Label alignment="CENTER" text=".">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="txtExtension" prefHeight="25.0" prefWidth="64.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+            </HBox>
+         </children>
+      </GridPane>
+      <TreeView fx:id="treeView" onContextMenuRequested="#selectItemOptions" onMouseClicked="#selectItem" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.rowSpan="2147483647">
          <GridPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" />
          </GridPane.margin>
-      </TextArea>
+      </TreeView>
    </children>
 </GridPane>
