@@ -2,36 +2,35 @@ package file_system;
 
 public class CommandHandler {
 
-    public static String Command;
-    private FileSystem FileSystem;
+    public static String command;
+    private FileSystem fileSystem;
 
-    CommandHandler(FileSystem fileSystem) {
-        Command = "";
-        FileSystem = fileSystem;
+    CommandHandler(FileSystem pFileSystem) {
+        command = "";
+        fileSystem = pFileSystem;
     }
 
-    public void setCommand(String command) {
-        Command = command;
+    public void setCommand(String pCommand) {
+        command = pCommand;
     }
 
     public void execute() {
-        switch (Command) {
+        switch (command) {
             case Constants.CREATE:
-                SimulationFile directory = getFileSystem().currentDirectory;
-                FileSystem.createFile(directory, "test", "test");
+                SimulationFile directory = FileSystem.currentDirectory;
+                fileSystem.createFile(directory, "test", "test");
                 break;
-            
+
             case Constants.PROPS:
                 System.out.println("Properties");
-                
+
                 break;
+
+            case Constants.VIEW:
+                SimulationFile file = FileSystem.currentFile;
 
             default:
                 break;
         }
-    }
-
-    public FileSystem getFileSystem() {
-        return FileSystem;
     }
 }
