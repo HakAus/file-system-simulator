@@ -15,7 +15,7 @@ public class FileSectorList {
         return origin;
     }
 
-    public addSector() {
+    // public addSector() {
         
-    }
+    // }
 }

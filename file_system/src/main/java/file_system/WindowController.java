@@ -1,6 +1,8 @@
 package file_system;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javafx.event.ActionEvent;
@@ -29,7 +31,7 @@ public class WindowController {
     private GridPane window, fileEditor;
 
     @FXML
-    private TextField txtCurrentDirectory, txtExtension, txtFilename, txtSearchBox;
+    private TextField txtCurrentDirectory, txtExtension, txtFilename, txtSearchBox, txtPath;
 
     @FXML
     private TextArea txtFileContent;
@@ -53,16 +55,21 @@ public class WindowController {
 
     @FXML
     void addDirectory(ActionEvent event) {
+        
     }
 
     @FXML
     void addFile(ActionEvent event) {
         System.out.println("Add file");
-        fileSystem.createFile("prueba", "letras");
+        SimulationFile directory = fileSystem.currentDirectory;
+        fileSystem.createFile(directory, "prueba.txt", "letras");
         toggleFileEditor();
         btnAddFile.setDisable(true);
         btnAddDirectory.setDisable(true);
 
+
+        // MIENTRAS
+        getProperties(event);
     }
 
     @FXML
@@ -92,8 +99,77 @@ public class WindowController {
 
     @FXML
     void search(ActionEvent event) {
+        String search = txtSearchBox.getText();
+        if (search.contains("*")){
+            search = search.replace("*", ""); // TEMPORAL Y SI FUNCIONA PUEDE QUE LO DEJE ASI xD
+        }
+
+        // Search in the tree
+        ArrayList<String> results = new ArrayList<String>();
+        SimulationFile root = fileSystem.currentDirectory; // get the root directory PENDIENTE
+        String currentPath = root.getName() + "/";
+        
+        searching(root, search, currentPath, results);
+    }
+
+    // @FXML
+    void getProperties(ActionEvent event) {
+        SimulationFile file = fileSystem.currentFile;
+        String properties = "";
+        properties += "Name: " + file.getName() + "\n";
+        properties += "Extension: " + file.getExtension() + "\n";
+        properties += "Size: " + file.getSize() + "\n";
+        properties += "Creation Date: " + file.getCreationDate() + "\n";
+        properties += "Modification Date: " + file.getModificationDate() + "\n";
+
+        System.out.println(properties);
+    }
+
+    // @FXML
+    void move() {
+        System.out.println("Move");
+        SimulationFile file = fileSystem.currentDirectory;
+
+        SimulationFile parent = file.getParentDirectory();
+        parent.getFiles().remove(file);
+
+        SimulationFile newParent = fileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
+        newParent.getFiles().add(file);
+    }
+
+    // @FXML
+    void copy1() throws IOException { // Ruta real a virtual // TAMBIEN REVISAR PORQUE TENIA MUCHO SUE:O
+        System.out.println("Copy");
+        String path = txtPath.getText();
+        ReadFile readFile = new ReadFile();
+        SimulationFile destiny = fileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO 
+        File file = new File(path);
+        String content = readFile.read(path);
+        fileSystem.createFile(destiny, file.getName(), content);
+    }
+
+    // @FXML
+    void copy2() { // Ruta virtual a real
+        System.out.println("Copy");
+        SimulationFile file = fileSystem.currentFile;
+        String content = file.getName(); //getContent(); // AQUI SE USARA LA FUNCION DE VER FILE
+        String pathDestiny = txtPath.getText();
+        WriteFile writeFile = new WriteFile();
+        writeFile.write(pathDestiny, content);
 
     }
+
+    // @FXML
+    void copy3() { // Ruta real a real
+        System.out.println("Copy"); 
+
+        SimulationFile file = fileSystem.currentDirectory;
+
+
+        SimulationFile destiny = fileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
+        destiny.getFiles().add(file);
+    }
+
 
     public void initialize() {
         fileSystem = new FileSystem();
@@ -143,5 +219,39 @@ public class WindowController {
         } else {
             fileEditor.setVisible(true);
         }
+    }
+
+    private boolean isFile(String search) {
+        if (search.contains("."))
+            return true;
+        return false;
+    }
+
+    private void searching(SimulationFile directory, String search, String currentPath, ArrayList<String> results) {
+
+        ArrayList<SimulationFile> files = directory.getFiles();
+        for (SimulationFile file : files) {
+            // if (isFile(search)){
+                if (isFile(file.getFullname())) {
+                    if (file.getFullname().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
+                        results.add(currentPath + file.getFullname());
+                    }
+                } else {
+                    if (file.getName().contains(search)) {
+                        results.add(currentPath + file.getName());
+                    }
+                    searching(file, search, currentPath + file.getName() + "/", results);
+                }
+            // } else {
+            //     if (file.getName().contains(search)) {
+            //         results.add(currentPath + file.getName());
+            //     } else {
+            //         searching(file, search, currentPath + file.getName() + "/", results);
+            //     }
+            // }
+        }
+
+        System.out.println("Resultados: " + results);
+        
     }
 }

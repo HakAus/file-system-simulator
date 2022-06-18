@@ -15,9 +15,11 @@ public class SimulationFile extends TreeCell<String> {
     private long start, end, size;
     private BooleanProperty isDirectory;
     private StringProperty name;
+    private Date creationDate;
     private Date lastModified;
     private ArrayList<SimulationFile> files;
     private ArrayList<Long> sectors;
+    private SimulationFile parent;
 
     // Constructors
     SimulationFile() {
@@ -35,6 +37,7 @@ public class SimulationFile extends TreeCell<String> {
         size = pSize;
         isDirectory = new SimpleBooleanProperty(false);
         name = new SimpleStringProperty(pName);
+        creationDate = new Date();
         lastModified = pLastModified;
         sectors = pSectors;
     }
@@ -114,6 +117,30 @@ public class SimulationFile extends TreeCell<String> {
 
     public String getName() {
         return nameProperty().get();
+    }
+
+    public String getFullname(){
+        return nameProperty().getName();
+    }
+
+    public String getExtension() {
+        return nameProperty().get().substring(nameProperty().get().lastIndexOf(".") + 1);
+    }
+
+    public String getCreationDate(){
+        return creationDate.toString();
+    }
+
+    public String getModificationDate(){
+        return lastModified.toString();
+    }
+
+    public ArrayList<SimulationFile> getFiles() {
+        return files;
+    }
+
+    public SimulationFile getParentDirectory() {
+        return parent;
     }
 
     public StringProperty nameProperty() {

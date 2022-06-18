@@ -17,11 +17,21 @@ public class CommandHandler {
     public void execute() {
         switch (Command) {
             case Constants.CREATE:
-                FileSystem.createFile("test", "test");
+                SimulationFile directory = getFileSystem().currentDirectory;
+                FileSystem.createFile(directory, "test", "test");
+                break;
+            
+            case Constants.PROPS:
+                System.out.println("Properties");
+                
                 break;
 
             default:
                 break;
         }
+    }
+
+    public FileSystem getFileSystem() {
+        return FileSystem;
     }
 }

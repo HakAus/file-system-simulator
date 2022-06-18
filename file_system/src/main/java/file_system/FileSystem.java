@@ -19,6 +19,8 @@ public class FileSystem {
     public static int freeSpace;
     public static int sectorSize;
     public static int sectorAmount;
+    public static SimulationFile currentDirectory;
+    public static SimulationFile currentFile;
 
     FileSystem() {
         try {
@@ -42,7 +44,8 @@ public class FileSystem {
                 size = (long) content.length();
                 end = writtenSectors.get(writtenSectors.size() - 1).longValue();
                 file = new SimulationFile(start, end, size, fileName, new Date(), writtenSectors);
-                directory.addFile(file);
+                currentFile = file;
+                // directory.addFile(file);
             } catch (Exception e) {
                 e.printStackTrace();
             }
