@@ -48,6 +48,12 @@ public class FileSystem {
                 end = fileSectors.get(1).longValue();
                 file = new SimulationFile(start, end, size, fileName, new Date());
 
+                // PRUEBA LECTURA
+                String text = "";
+                String result;
+                result = readSector(text, file.getStart(), file.getEnd(), size);
+                System.out.println("Lectura: " + result);
+
                 // File is added to the directory
                 currentFile = file;
                 // directory.addFile(file);
@@ -110,6 +116,43 @@ public class FileSystem {
             // Go to next sector
             return writeSector(content, disk.getFilePointer() + sectorSize, end);
         }
+    }
+
+    public String readSector(String content, long start, long end, long size) throws IOException{
+        // Lookup sector
+        disk.seek(start);
+
+        // Read sector
+        int cont = 0;
+        int limit = sectorSize - pointerSize;
+        String pointer = "";
+        for (int i = 0; i < sectorSize; i++) {
+            
+            if (i >= limit){ //REVISAR SI ES MAYOR IGUAL O SOLO MAYOR
+                pointer += (char) disk.read();
+            }
+            else {
+                content += (char) disk.read();
+                
+                if (content.length() == size) {
+                    return content;
+                }
+            }
+            cont++;
+        }
+
+        //hexadecimal to decimal
+        Integer pointerDec = Integer.parseInt(pointer, 16);
+        
+
+        System.out.println("content: " + content);
+        System.out.println("pointer " + pointer);
+        System.out.println("pointerDec " + pointerDec);
+        System.out.println("end: " + end);
+        System.out.println("start: " + start);
+
+        return readSector(content, pointerDec, end, size);
+
     }
 
     public ArrayList<Long> writeToSectors(String content) throws IOException {

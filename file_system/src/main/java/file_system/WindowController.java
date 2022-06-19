@@ -107,7 +107,7 @@ public class WindowController {
 
         // Search in the tree
         ArrayList<String> results = new ArrayList<String>();
-        SimulationFile root = fileSystem.currentDirectory; // get the root directory PENDIENTE
+        SimulationFile root = FileSystem.currentDirectory; // get the root directory PENDIENTE
         String currentPath = root.getName() + "/";
 
         searching(root, search, currentPath, results);
@@ -134,7 +134,7 @@ public class WindowController {
         SimulationFile parent = file.getParentDirectory();
         parent.getFiles().remove(file);
 
-        SimulationFile newParent = fileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
+        SimulationFile newParent = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         newParent.getFiles().add(file);
     }
 
@@ -143,7 +143,7 @@ public class WindowController {
         System.out.println("Copy");
         String path = txtPath.getText();
         ReadFile readFile = new ReadFile();
-        SimulationFile destiny = fileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
+        SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         File file = new File(path);
         String content = readFile.read(path);
         fileSystem.createFile(destiny, file.getName(), content);
@@ -152,7 +152,7 @@ public class WindowController {
     // @FXML
     void copy2() { // Ruta virtual a real
         System.out.println("Copy");
-        SimulationFile file = fileSystem.currentFile;
+        SimulationFile file = FileSystem.currentFile;
         String content = file.getName(); // getContent(); // AQUI SE USARA LA FUNCION DE VER FILE
         String pathDestiny = txtPath.getText();
         WriteFile writeFile = new WriteFile();
@@ -164,9 +164,9 @@ public class WindowController {
     void copy3() { // Ruta real a real
         System.out.println("Copy");
 
-        SimulationFile file = fileSystem.currentDirectory;
+        SimulationFile file = FileSystem.currentDirectory;
 
-        SimulationFile destiny = fileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
+        SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         destiny.getFiles().add(file);
     }
 
@@ -226,11 +226,10 @@ public class WindowController {
         return false;
     }
 
-    private void searching(SimulationFile directory, String search, String currentPath, ArrayList<String> results) {
+    private ArrayList<String> searching(SimulationFile directory, String search, String currentPath, ArrayList<String> results) {
 
         ArrayList<SimulationFile> files = directory.getFiles();
         for (SimulationFile file : files) {
-            // if (isFile(search)){
             if (isFile(file.getFullname())) {
                 if (file.getFullname().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
                     results.add(currentPath + file.getFullname());
@@ -239,18 +238,12 @@ public class WindowController {
                 if (file.getName().contains(search)) {
                     results.add(currentPath + file.getName());
                 }
-                searching(file, search, currentPath + file.getName() + "/", results);
+                results = searching(file, search, currentPath + file.getName() + "/", results);
             }
-            // } else {
-            // if (file.getName().contains(search)) {
-            // results.add(currentPath + file.getName());
-            // } else {
-            // searching(file, search, currentPath + file.getName() + "/", results);
-            // }
-            // }
         }
 
         System.out.println("Resultados: " + results);
+        return results;
 
     }
 }
