@@ -48,6 +48,12 @@ public class FileSystem {
                 end = fileSectors.get(1).longValue();
                 file = new SimulationFile(start, end, size, fileName, new Date());
 
+                // PRUEBA LECTURA
+                String result;
+                System.out.println("File size: " + file.getSize());
+                result = readFile(file);
+                System.out.println("Lectura: " + result);
+
                 // File is added to the directory
                 currentFile = file;
                 // directory.addFile(file);
@@ -57,6 +63,14 @@ public class FileSystem {
         } else {
 
             System.out.println("No hay espacio");
+        }
+    }
+
+    public String readFile(SimulationFile file) {
+        try {
+            return readSector(file.getStart(), file.getSize());
+        } catch (IOException e) {
+            return "";
         }
     }
 
@@ -110,11 +124,45 @@ public class FileSystem {
         }
     }
 
+    public String readSector(long offset, long blocksLeft)
+            throws IOException, NumberFormatException {
+        // Lookup sector
+        disk.seek(offset);
+
+        // Read sector
+        int contentSize = sectorSize - pointerSize;
+        String pointer = "";
+        String content = "";
+        for (int i = 0; i < sectorSize; i++) {
+
+            if (i >= contentSize) {
+                pointer += (char) disk.read();
+            } else {
+                content += (char) disk.read();
+                blocksLeft--;
+
+                if (blocksLeft == 0) {
+                    int left = sectorSize - i - 1;
+                    for (int j = 0; j < left; j++) {
+                        disk.read();
+                    }
+                    return content;
+                }
+            }
+        }
+
+        // hexadecimal to decimal
+        long pointerDec = Long.parseLong(pointer, 16);
+
+        return content + readSector(pointerDec, blocksLeft);
+
+    }
+
     public ArrayList<Long> writeToSectors(String content) throws IOException {
 
         ArrayList<Long> result = new ArrayList<>();
-        long end = 0;
         if (freeSpace > content.length()) {
+            long end = 0;
             long start = writeSector(content, disk.getFilePointer(), end);
             result.add(start);
             result.add(end);
