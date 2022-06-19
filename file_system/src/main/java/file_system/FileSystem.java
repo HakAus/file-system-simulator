@@ -6,6 +6,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.MouseEvent;
@@ -15,10 +17,11 @@ public class FileSystem {
     // private static TreeItem<SimulationFile> currentDirectory;
     private ArrayList<SimulationFile> tree;
     private RandomAccessFile disk;
-    public static int freeSpace;
+    public static IntegerProperty freeSpace;
     public static int sectorSize;
     public static int pointerSize;
     public static int sectorAmount;
+    public static SimulationFile root;
     public static SimulationFile currentDirectory;
     public static SimulationFile currentFile;
 
@@ -28,19 +31,20 @@ public class FileSystem {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        freeSpace = sectorAmount * sectorSize;
+        freeSpace = new SimpleIntegerProperty(0);
+        root = new SimulationFile("root", new Date());
     }
 
-    public void createFile(SimulationFile directory, String fileName, String content) {
+    public SimulationFile createFile(SimulationFile directory, String fileName, String content) {
         // Check for available space
         SimulationFile file;
         long start, end, size;
         start = end = size = 0;
 
-        if (content.length() < freeSpace) {
+        if (content.length() < freeSpace.get()) {
             try {
                 // File is written to disc
-                ArrayList<Long> fileSectors = writeToSectors(content);
+                ArrayList<Long> fileSectors = writeFile(content);
 
                 // File system file creation
                 start = fileSectors.get(0).longValue();
@@ -49,28 +53,22 @@ public class FileSystem {
                 file = new SimulationFile(start, end, size, fileName, new Date());
 
                 // PRUEBA LECTURA
-                String result;
+
                 System.out.println("File size: " + file.getSize());
-                result = readFile(file);
+                String result = readFile(file);
                 System.out.println("Lectura: " + result);
 
                 // File is added to the directory
                 currentFile = file;
+                return file;
                 // directory.addFile(file);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
         } else {
-
             System.out.println("No hay espacio");
-        }
-    }
-
-    public String readFile(SimulationFile file) {
-        try {
-            return readSector(file.getStart(), file.getSize());
-        } catch (IOException e) {
-            return "";
+            return null;
         }
     }
 
@@ -158,15 +156,48 @@ public class FileSystem {
 
     }
 
-    public ArrayList<Long> writeToSectors(String content) throws IOException {
+    public void deleteSector(long offset, long blocksLeft) throws IOException {
+        // Lookup sector
+        disk.seek(offset);
+
+        // Read sector
+        int contentSize = sectorSize - pointerSize;
+        String pointer = "";
+        for (int i = 0; i < sectorSize; i++) {
+
+            if (i >= contentSize) {
+                pointer += (char) disk.read();
+                disk.seek(disk.getFilePointer() - 1);
+                disk.writeByte('0');
+            } else {
+                disk.writeByte('0');
+                blocksLeft--;
+
+                if (blocksLeft == 0) {
+                    int left = sectorSize - i - 1;
+                    for (int j = 0; j < left; j++) {
+                        disk.read();
+                    }
+                    return;
+                }
+            }
+        }
+
+        // hexadecimal to decimal
+        long pointerDec = Long.parseLong(pointer, 16);
+
+        deleteSector(pointerDec, blocksLeft);
+    }
+
+    public ArrayList<Long> writeFile(String content) throws IOException {
 
         ArrayList<Long> result = new ArrayList<>();
-        if (freeSpace > content.length()) {
+        if (freeSpace.get() > content.length()) {
             long end = 0;
             long start = writeSector(content, disk.getFilePointer(), end);
             result.add(start);
             result.add(end);
-            freeSpace -= content.length();
+            freeSpace.subtract(content.length());
         }
 
         // Reset disc file pointer
@@ -175,8 +206,16 @@ public class FileSystem {
         return result;
     }
 
-    public void writeFile(String content) {
+    public String readFile(SimulationFile file) {
+        try {
+            return readSector(file.getStart(), file.getSize());
+        } catch (IOException e) {
+            return "";
+        }
+    }
 
+    public void deleteFile(SimulationFile file) throws IOException {
+        deleteSector(file.getStart(), file.getSize());
     }
 
     // Creating the mouse event handler

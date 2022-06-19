@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
+import javafx.event.EventDispatcher;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
@@ -16,8 +21,18 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
+
+class FileSystemCell<SimulationFile> {
+
+    FileSystemCell() {
+
+    }
+}
 
 public class WindowController {
 
@@ -31,10 +46,13 @@ public class WindowController {
     private GridPane window, fileEditor;
 
     @FXML
-    private TextField txtCurrentDirectory, txtExtension, txtFilename, txtSearchBox, txtPath;
+    private TextField txtExtension, txtFilename, txtSearchBox, txtPath;
 
     @FXML
     private TextArea txtFileContent;
+
+    @FXML
+    private Label lblAvailableSpace;
 
     private TreeItem<SimulationFile> root = new TreeItem<SimulationFile>();
     private FileSystem fileSystem;
@@ -44,6 +62,7 @@ public class WindowController {
         TreeItem<SimulationFile> selected = treeView.getSelectionModel().getSelectedItem();
         if (selected != null)
             System.out.println(selected.getValue().getName());
+        System.out.println("xd");
     }
 
     @FXML
@@ -61,14 +80,8 @@ public class WindowController {
     @FXML
     void addFile(ActionEvent event) {
         System.out.println("Add file");
-        SimulationFile directory = FileSystem.currentDirectory;
-        fileSystem.createFile(directory, "arch_Austin", "austin");
-        System.out.println("---");
-        fileSystem.createFile(directory, "arch_Ulises", "ulises");
-        toggleFileEditor();
-        btnAddFile.setDisable(true);
-        btnAddDirectory.setDisable(true);
-
+        if (!fileEditor.isVisible())
+            toggleFileEditor();
         // MIENTRAS
         // getProperties(event);
     }
@@ -87,13 +100,11 @@ public class WindowController {
         // Get data
         // TreeItem<SimulationFile> currentDirectory = FileSystem.getCurrentDirectory();
         // System.out.println("directorio actual: " + currentDirectory.getValue());
-        String fileName = txtFilename.getText();
-        String fileExtension = txtExtension.getText();
-        String content = txtFileContent.getText();
+
+        SimulationFile directory = FileSystem.currentDirectory;
+        SimulationFile file = fileSystem.createFile(directory, txtPath.getText(), txtFileContent.getText());
 
         // GUI handling
-        btnAddFile.setDisable(false);
-        btnAddDirectory.setDisable(false);
         PopUp.FileCreatedSuccesfullyPopUp();
         toggleFileEditor();
     }
@@ -170,46 +181,66 @@ public class WindowController {
         destiny.getFiles().add(file);
     }
 
+    private void createTree(FileSystem fs) {
+
+        TreeItem<SimulationFile> root = new TreeItem<SimulationFile>(FileSystem.root);
+
+        treeView.setRoot(root);
+    }
+
     public void initialize() {
         fileSystem = new FileSystem();
-        // File folder = new File(getClass().getResource("imgs/folder.png").getFile());
-        // File file = new File(getClass().getResource("imgs/file.png").getFile());
-        // TreeItem<String> root = new TreeItem<SimulationFile>(new
-        // SimulationFile("root", new Date()),
-        // new ImageView(new Image("folder.png", 20, 20, false, false)));
-        // root.getChildren()
-        // .add(new TreeItem<SimulationFile>(new SimulationFile(0, 0, "file1", new
-        // Date(), new FileSectorList()),
-        // new ImageView(new Image("file.png", 20, 20, false, false))));
-        // treeView.setRoot(root);
 
-        // treeView.setCellFactory(new Callback<TreeView<SimulationFile>,
-        // TreeCell<String>>() {
-        // @Override
-        // public TreeCell<SimulationFile> call(TreeView<SimulationFile> param) {
-        // return new TreeCell<SimulationFile>() {
-        // @Override
-        // protected void updateItem(SimulationFile item, boolean empty) {
+        createTree(fileSystem);
 
-        // if (item == null || empty) {
-        // setText(null);
-        // } else {
-        // System.out.println("El item no es null");
-        // setText(item.getName());
-        // selectItem();
+        // GUI bindings
+        btnSearch.disableProperty().bind(
+                Bindings.isEmpty(txtSearchBox.textProperty()));
+        btnAddFile.disableProperty().bind(
+                Bindings.isEmpty(txtPath.textProperty()));
+        btnAddDirectory.disableProperty().bind(
+                Bindings.isEmpty(txtPath.textProperty()));
 
-        // // EventDispatcher originalDispatcher = getEventDispatcher();
-        // // setEventDispatcher(
-        // // new TreeMouseEventDispatcher(originalDispatcher, this, currentDirectory));
-        // }
-        // if (getTreeItem() != null) {
-        // // // update disclosureNode depending on expanded state
-        // // setDisclosureNode(getTreeItem().isExpanded() ? expanded : collapsed);
-        // }
-        // }
-        // };
-        // }
-        // });
+        lblAvailableSpace.textProperty().bind(
+                FileSystem.freeSpace.asString("%s characters left"));
+
+        treeView.setCellFactory(new Callback<TreeView<SimulationFile>, TreeCell<SimulationFile>>() {
+
+            @Override
+            public TreeCell<SimulationFile> call(TreeView<SimulationFile> param) {
+                return new TreeCell<SimulationFile>() {
+                    @Override
+                    protected void updateItem(SimulationFile item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            setText(item.getName());
+                            setGraphic(new ImageView(new Image("folder.png", 20, 20, false, false)));
+
+                            // EventDispatcher originalDispatcher = getEventDispatcher();
+                            // setEventDispatcher(
+                            // new TreeMouseEventDispatcher(originalDispatcher, this, currentDirectory));
+                        }
+                        if (getTreeItem() != null) {
+                            // getTreeItem().addEventHandler(TreeItem < SimulationFile > value,
+                            // new EventHandler<TreeItem.TreeModificationEvent>() {
+
+                            // @Override
+                            // public void handle(MouseEvent event) {
+                            // // TODO Auto-generated method stub
+
+                            // }
+
+                            // });
+                            // // update disclosureNode depending on expanded state
+                            // setDisclosureNode(getTreeItem().isExpanded() ? expanded : collapsed);
+                        }
+                    }
+                };
+            }
+        });
     }
 
     private void toggleFileEditor() {
@@ -226,7 +257,8 @@ public class WindowController {
         return false;
     }
 
-    private ArrayList<String> searching(SimulationFile directory, String search, String currentPath, ArrayList<String> results) {
+    private ArrayList<String> searching(SimulationFile directory, String search, String currentPath,
+            ArrayList<String> results) {
 
         ArrayList<SimulationFile> files = directory.getFiles();
         for (SimulationFile file : files) {

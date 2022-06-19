@@ -39,11 +39,11 @@ public class StartupController {
         // Write initial data for disc
         FileSystem.sectorAmount = Integer.parseInt(txtSectorAmount.getText());
         int sectorSize = Integer.parseInt(txtSectorSize.getText());
-        int pointerSize = Integer.toHexString(FileSystem.sectorAmount).length();
+        int pointerSize = Integer.toHexString(FileSystem.sectorAmount * sectorSize).length();
         System.out.println("Pointer size: " + pointerSize);
         FileSystem.sectorSize = sectorSize + pointerSize;
         FileSystem.pointerSize = pointerSize;
-        FileSystem.freeSpace = FileSystem.sectorSize * FileSystem.sectorAmount;
+        FileSystem.freeSpace.set((FileSystem.sectorSize - pointerSize) * FileSystem.sectorAmount);
 
         try {
             FileWriter myWriter = new FileWriter(Constants.DISC_PATH);
