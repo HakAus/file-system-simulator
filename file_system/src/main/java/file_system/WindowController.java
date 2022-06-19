@@ -227,7 +227,7 @@ public class WindowController {
         return false;
     }
 
-    private void searching(SimulationFile directory, String search, String currentPath, ArrayList<String> results) {
+    private ArrayList<String> searching(SimulationFile directory, String search, String currentPath, ArrayList<String> results) {
 
         ArrayList<SimulationFile> files = directory.getFiles();
         for (SimulationFile file : files) {
@@ -240,7 +240,7 @@ public class WindowController {
                     if (file.getName().contains(search)) {
                         results.add(currentPath + file.getName());
                     }
-                    searching(file, search, currentPath + file.getName() + "/", results);
+                    results = searching(file, search, currentPath + file.getName() + "/", results);
                 }
             // } else {
             //     if (file.getName().contains(search)) {
@@ -252,6 +252,7 @@ public class WindowController {
         }
 
         System.out.println("Resultados: " + results);
+        return results;
         
     }
 }
