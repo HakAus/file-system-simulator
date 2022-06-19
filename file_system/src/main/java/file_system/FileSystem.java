@@ -101,9 +101,7 @@ public class FileSystem {
                     disk.writeByte(pointer.charAt(cont));
                     cont++;
                 }
-
             }
-
             return position;
 
         } else {
@@ -127,40 +125,6 @@ public class FileSystem {
         disk.seek(0);
 
         return result;
-
-        // while (charIdx < content.length() && (disk.getFilePointer() + 1) < freeSpace)
-        // {
-
-        // // Read char
-        // long position = disk.getFilePointer();
-        // char block = (char) disk.read();
-        // if (block == Constants.FREE_SPACE) {
-        // // fill sector
-        // disk.seek(position);
-        // sectors.add(position);
-        // int sectorBlocksWritten = 0;
-
-        // for (int i = 0; i < sectorSize - pointerSize; i++) {
-        // if (charIdx < content.length()) {
-        // disk.writeByte(content.charAt(charIdx));
-        // charIdx++;
-        // sectorBlocksWritten++;
-        // }
-        // }
-
-        // // Save position to patch the sector pointer
-        // long spaceRemaining = sectorSize - (sectorBlocksWritten + pointerSize);
-        // patchPosition = position + spaceRemaining;
-
-        // // Adjust seek position in disc for next sector write
-        // disk.seek(patchPosition + pointerSize);
-
-        // } else {
-        // // Go to next sector
-        // disk.seek(disk.getFilePointer() - 1 + sectorSize);
-        // }
-        // }
-
     }
 
     public void writeFile(String content) {
