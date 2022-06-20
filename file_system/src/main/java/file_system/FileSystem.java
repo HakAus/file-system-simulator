@@ -35,7 +35,7 @@ public class FileSystem {
         currentFile = null;
     }
 
-    public SimulationFile createFile(SimulationFile directory, String fileName, String extension, String content) {
+    public void createFile(SimulationFile directory, String fileName, String extension, String content) {
         // Check for available space
         SimulationFile file;
         long start, end, size;
@@ -55,25 +55,41 @@ public class FileSystem {
                 file = new SimulationFile(currentDirectory, path, start, end,
                         size, fileName, extension, new Date());
 
-                currentDirectory.addFile(file);
-
-                // PRUEBA LECTURA
-
-                System.out.println("File size: " + file.getSize());
-                String result = readFile(file);
-                System.out.println("Lectura: " + result);
-
                 // File is added to the directory
+                currentDirectory.upsertFile(file);
+
                 currentFile = file;
-                return file;
-                // directory.addFile(file);
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
             }
         } else {
+            PopUp.display(Constants.ERROR_NO_AVAILABLE_MEMORY);
             System.out.println("No hay espacio");
-            return null;
+        }
+    }
+
+    public void updateFile(SimulationFile file, String content) {
+        if (content.length() < freeSpace.get()) {
+            try {
+                // File is written to disc
+                ArrayList<Long> fileSectors = updateFileSectors(file, content);
+
+                // File system file creation
+                file.setStart(fileSectors.get(0).longValue());
+                file.setSize((long) content.length());
+                file.setEnd(fileSectors.get(1).longValue());
+                file.setLastModified(new Date());
+
+                // File is added to the directory
+                currentDirectory.upsertFile(file);
+
+                currentFile = file;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            PopUp.display(Constants.ERROR_NO_AVAILABLE_MEMORY);
+            System.out.println("No hay espacio");
         }
     }
 
@@ -127,18 +143,79 @@ public class FileSystem {
         }
     }
 
+    public Long updateSector(String content, long position, long end, long originalSize) throws IOException {
+
+        // Lookup sector
+        disk.seek(position);
+
+        // Write to sector
+        for (int i = 0; i < sectorSize - pointerSize; i++) {
+            disk.writeByte(content.charAt(0));
+            content = content.length() > 1 ? content = content.substring(1, content.length()) : "";
+            originalSize -= 1;
+
+            if (content.isEmpty()) {
+                end = position;
+                return end;
+            }
+        }
+
+        // Get next sector index
+        String pointer = "";
+        for (int i = 0; i < pointerSize; i++) {
+            pointer += (char) disk.read();
+        }
+
+        // Check if its the end to continue writting sectors normally or continue
+        // updating
+        long pointerDec = Long.parseLong(pointer, 16);
+        if (pointerDec == end) {
+            // Reset pointer
+            disk.seek(0);
+
+            // Write required sectors
+            long newSectorPointer = writeSector(content, disk.getFilePointer(), end);
+
+            System.out.println("NEW FILE POINTER: " + newSectorPointer);
+
+            // Write pointer to connect the sectors
+
+            // Adjust file pointer
+            disk.seek(position + (sectorSize - pointerSize));
+
+            // From int to hex
+            pointer = Long.toHexString(newSectorPointer);
+
+            // Write pointer
+            int cont = 0;
+            for (int i = 0; i < pointerSize; i++) {
+                if (i < pointerSize - pointer.length())
+                    disk.writeByte('0');
+                else {
+                    disk.writeByte(pointer.charAt(cont));
+                    cont++;
+                }
+            }
+
+            return (long) 0;
+        } else {
+            return updateSector(content, pointerDec, end, originalSize);
+        }
+
+    }
+
     public String readSector(long offset, long blocksLeft)
             throws IOException, NumberFormatException {
         // Lookup sector
         disk.seek(offset);
 
         // Read sector
-        int contentSize = sectorSize - pointerSize;
+        int dataLimitSize = sectorSize - pointerSize;
         String pointer = "";
         String content = "";
         for (int i = 0; i < sectorSize; i++) {
 
-            if (i >= contentSize) {
+            if (i >= dataLimitSize) {
                 pointer += (char) disk.read();
             } else {
                 content += (char) disk.read();
@@ -202,7 +279,24 @@ public class FileSystem {
             long start = writeSector(content, disk.getFilePointer(), end);
             result.add(start);
             result.add(end);
-            freeSpace.subtract(content.length());
+            freeSpace.set(freeSpace.get() - content.length());
+        }
+
+        // Reset disc file pointer
+        disk.seek(0);
+
+        return result;
+    }
+
+    public ArrayList<Long> updateFileSectors(SimulationFile file, String content) throws IOException {
+
+        ArrayList<Long> result = new ArrayList<>();
+        if (freeSpace.get() + file.getSize() > content.length()) {
+            long end = 0;
+            long start = updateSector(content, file.getStart(), file.getEnd(), file.getSize());
+            result.add(start);
+            result.add(end);
+            freeSpace.set(freeSpace.get() - content.length());
         }
 
         // Reset disc file pointer

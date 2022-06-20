@@ -100,11 +100,20 @@ public class WindowController {
     @FXML
     void saveFile(ActionEvent event) {
 
-        // Get data
-        SimulationFile file = fileSystem.createFile(FileSystem.currentDirectory,
-                txtFilename.getText(),
-                txtExtension.getText(),
-                txtFileContent.getText());
+        ArrayList<String> results = searching(FileSystem.currentDirectory, txtFilename.getText(),
+                FileSystem.currentDirectory.getPath(),
+                new ArrayList<String>());
+
+        if (results.isEmpty()) {
+            // Create new file
+            fileSystem.createFile(FileSystem.currentDirectory,
+                    txtFilename.getText(),
+                    txtExtension.getText(),
+                    txtFileContent.getText());
+        } else {
+            // Update file
+            fileSystem.updateFile(FileSystem.currentFile, txtFileContent.getText());
+        }
 
         // Update tree
         createTree(fileSystem);
@@ -289,7 +298,7 @@ public class WindowController {
 
         ArrayList<SimulationFile> files = directory.getFiles();
         for (SimulationFile file : files) {
-            if (isFile(file.getFullname())) {
+            if (!file.isDirectory()) {
                 if (file.getFullname().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
                     results.add(currentPath + file.getFullname());
                 }

@@ -84,9 +84,25 @@ public class SimulationFile {
         path.set(pPath);
     }
 
-    public void addFile(SimulationFile file) {
-        file.setIsDirectory(false);
-        files.add(file);
+    public void upsertFile(SimulationFile pFile) {
+
+        pFile.setIsDirectory(false);
+
+        // Check if file already exists
+        ArrayList<String> foundFiles = new ArrayList<>();
+        for (SimulationFile file : files) {
+            if (!file.isDirectory()) {
+                if (file.getFullname().contains(pFile.getFullname())) {
+                    // If found, update de file
+                    file = pFile;
+                    foundFiles.add(file.getFullname());
+                }
+            }
+        }
+
+        // Add new file only if no other files with the same name exist
+        if (foundFiles.isEmpty())
+            files.add(pFile);
     }
 
     public void addDirectory(SimulationFile directory) {
@@ -98,7 +114,7 @@ public class SimulationFile {
         return start;
     }
 
-    public void setStart(int value) {
+    public void setStart(long value) {
         start = value;
     }
 
@@ -106,7 +122,7 @@ public class SimulationFile {
         return end;
     }
 
-    public void setEnd(int value) {
+    public void setEnd(long value) {
         end = value;
     }
 
@@ -114,7 +130,7 @@ public class SimulationFile {
         return size;
     }
 
-    public void setSize(int value) {
+    public void setSize(long value) {
         size = value;
     }
 

@@ -20,6 +20,8 @@ public class PopUp {
                 break;
             case Constants.FILE_DELETED_SUCCESFULLY:
                 popupWindow.setScene(createScene(popupWindow, "File deleted succesfully!"));
+            case Constants.ERROR_NO_AVAILABLE_MEMORY:
+                popupWindow.setScene(createScene(popupWindow, "There's not enough memory to write the file! :("));
 
             default:
                 break;
