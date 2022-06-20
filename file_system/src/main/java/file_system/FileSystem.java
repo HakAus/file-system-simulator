@@ -31,6 +31,8 @@ public class FileSystem {
         }
         freeSpace = new SimpleIntegerProperty(0);
         root = new SimulationFile(null, "root/", "root", new Date());
+        currentDirectory = root;
+        currentFile = null;
     }
 
     public SimulationFile createFile(SimulationFile directory, String fileName, String extension, String content) {
@@ -218,7 +220,12 @@ public class FileSystem {
     }
 
     public void deleteFile(SimulationFile file) throws IOException {
+        // Remove file from disk
         deleteSector(file.getStart(), file.getSize());
+
+        // Remove file form file system
+        SimulationFile parent = file.getParentDirectory();
+        parent.getFiles().remove(file);
     }
 
     // Creating the mouse event handler

@@ -1,6 +1,5 @@
 package file_system;
 
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -9,7 +8,7 @@ import javafx.stage.*;
 
 public class PopUp {
 
-    private static void display(String mode) {
+    public static void display(String mode) {
         Stage popupWindow = new Stage();
         popupWindow.initModality(Modality.APPLICATION_MODAL);
 
@@ -17,8 +16,11 @@ public class PopUp {
 
         switch (mode) {
             case Constants.FILE_CREATED_SUCCESFULLY:
-                popupWindow.setScene(fileCreatedScene(popupWindow));
+                popupWindow.setScene(createScene(popupWindow, "File created succesfully!"));
                 break;
+            case Constants.FILE_DELETED_SUCCESFULLY:
+                popupWindow.setScene(createScene(popupWindow, "File deleted succesfully!"));
+
             default:
                 break;
         }
@@ -27,12 +29,8 @@ public class PopUp {
 
     }
 
-    public static void FileCreatedSuccesfullyPopUp() {
-        display(Constants.FILE_CREATED_SUCCESFULLY);
-    }
-
-    private static Scene fileCreatedScene(Stage stage) {
-        Label label = new Label("Se creó el archivo correctamente");
+    private static Scene createScene(Stage stage, String message) {
+        Label label = new Label(message);
 
         Button button = new Button("Aceptar");
 

@@ -3,6 +3,7 @@ package file_system;
 public class Constants {
     public static final String DISC_PATH = "disk.txt";
     public static final String FILE_CREATED_SUCCESFULLY = "fileCreatedSuccesfully";
+    public static final String FILE_DELETED_SUCCESFULLY = "fileDeletedSuccesfully";
     public static final char FREE_SPACE = '0';
 
     // Commands

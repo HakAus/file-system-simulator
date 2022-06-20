@@ -40,12 +40,14 @@ public class WindowController {
     private Label lblAvailableSpace;
 
     private FileSystem fileSystem;
+    private SimulationFile selectedItem;
 
     @FXML
     void selectItem() {
         TreeItem<SimulationFile> selected = treeView.getSelectionModel().getSelectedItem();
 
         if (selected != null) {
+            selectedItem = selected.getValue();
             if (selected.getValue().isDirectory()) {
                 FileSystem.currentDirectory = selected.getValue();
             } else {
@@ -108,8 +110,31 @@ public class WindowController {
         createTree(fileSystem);
 
         // GUI handling
-        PopUp.FileCreatedSuccesfullyPopUp();
+        PopUp.display(Constants.FILE_CREATED_SUCCESFULLY);
         toggleFileEditor();
+    }
+
+    @FXML
+    void delete(ActionEvent event) {
+        if (selectedItem.isDirectory()) {
+
+        } else {
+            try {
+                // Delete file from disk
+                fileSystem.deleteFile(selectedItem);
+
+                // Delete file from file system
+
+                // Update tree
+                toggleFileEditor();
+                createTree(fileSystem);
+
+                // Show message
+                PopUp.display(Constants.FILE_DELETED_SUCCESFULLY);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
@@ -160,7 +185,7 @@ public class WindowController {
         SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         File file = new File(path);
         String content = readFile.read(path);
-        fileSystem.createFile(destiny, file.getName(), content);
+        fileSystem.createFile(destiny, file.getName(), "txt", content);
     }
 
     // @FXML
@@ -191,6 +216,8 @@ public class WindowController {
         traverseTree(root, FileSystem.root.getFiles());
 
         treeView.setRoot(root);
+
+        txtPath.setText(FileSystem.currentDirectory.getPath());
     }
 
     private void traverseTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files) {
