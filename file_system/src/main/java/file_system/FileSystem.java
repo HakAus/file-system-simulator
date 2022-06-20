@@ -14,8 +14,6 @@ import javafx.scene.input.MouseEvent;
 
 public class FileSystem {
 
-    // private static TreeItem<SimulationFile> currentDirectory;
-    private ArrayList<SimulationFile> tree;
     private RandomAccessFile disk;
     public static IntegerProperty freeSpace;
     public static int sectorSize;
@@ -32,7 +30,7 @@ public class FileSystem {
             e.printStackTrace();
         }
         freeSpace = new SimpleIntegerProperty(0);
-        root = new SimulationFile("root", new Date());
+        root = new SimulationFile(null, "root/", "root", new Date());
     }
 
     public SimulationFile createFile(SimulationFile directory, String fileName, String content) {
@@ -50,7 +48,12 @@ public class FileSystem {
                 start = fileSectors.get(0).longValue();
                 size = (long) content.length();
                 end = fileSectors.get(1).longValue();
-                file = new SimulationFile(start, end, size, fileName, new Date());
+
+                String path = currentDirectory.getPath() + fileName;
+                file = new SimulationFile(currentDirectory, path, start, end,
+                        size, fileName, new Date());
+
+                currentDirectory.addFile(file);
 
                 // PRUEBA LECTURA
 
@@ -73,7 +76,7 @@ public class FileSystem {
     }
 
     public void createdDirectory(SimulationFile parent, String name) {
-        parent.addDirectory(new SimulationFile(name, new Date()));
+        parent.addDirectory(new SimulationFile(parent, parent.getPath() + "/" + name, name, new Date()));
     }
 
     public long writeSector(String content, long position, long end) throws IOException {

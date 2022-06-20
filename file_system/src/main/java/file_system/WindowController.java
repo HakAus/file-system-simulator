@@ -27,17 +27,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 
-class FileSystemCell<SimulationFile> {
-
-    FileSystemCell() {
-
-    }
-}
-
 public class WindowController {
 
     @FXML
-    private Button btnAddDirectory, btnAddFile, btnCancel, btnSaveFile, btnSearch;
+    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch;
 
     @FXML
     private TreeView<SimulationFile> treeView;
@@ -54,15 +47,43 @@ public class WindowController {
     @FXML
     private Label lblAvailableSpace;
 
-    private TreeItem<SimulationFile> root = new TreeItem<SimulationFile>();
     private FileSystem fileSystem;
+
+    // private String getPath(SimulationFile file) {
+    // SimulationFile parent = file.getParentDirectory();
+
+    // if (parent != null) {
+    // return getPath(parent) + "/" + parent.getName();
+    // } else {
+    // return file.getName() + "/";
+    // }
+    // }
+
+    // private String getPathAux(SimulationFile file, String result) {
+    // SimulationFile parent = file.getParentDirectory();
+
+    // if (parent != null) {
+    // return getPath(parent) + "/" + parent.getName();
+    // } else {
+    // return file.getName() + "/";
+    // }
+    // }
 
     @FXML
     void selectItem() {
         TreeItem<SimulationFile> selected = treeView.getSelectionModel().getSelectedItem();
-        if (selected != null)
-            System.out.println(selected.getValue().getName());
-        System.out.println("xd");
+
+        if (selected != null) {
+            if (selected.getValue().isDirectory()) {
+                FileSystem.currentDirectory = selected.getValue();
+            } else {
+                FileSystem.currentFile = selected.getValue();
+            }
+            // String path = getPath(selected.getValue());
+            System.out.println("Got the path: " + selected.getValue().getPath());
+            // selected.getValue().setPath(path);
+            txtPath.setText(selected.getValue().getPath());
+        }
     }
 
     @FXML
@@ -82,6 +103,7 @@ public class WindowController {
         System.out.println("Add file");
         if (!fileEditor.isVisible())
             toggleFileEditor();
+
         // MIENTRAS
         // getProperties(event);
     }
@@ -89,8 +111,6 @@ public class WindowController {
     @FXML
     void cancelSaveFile(ActionEvent event) {
         // Bottons are enabled again
-        btnAddFile.setDisable(false);
-        btnAddDirectory.setDisable(false);
         toggleFileEditor();
     }
 
@@ -98,11 +118,13 @@ public class WindowController {
     void saveFile(ActionEvent event) {
 
         // Get data
-        // TreeItem<SimulationFile> currentDirectory = FileSystem.getCurrentDirectory();
-        // System.out.println("directorio actual: " + currentDirectory.getValue());
+        String fullFilename = txtFilename.getText() + "." + txtExtension.getText();
+        SimulationFile file = fileSystem.createFile(FileSystem.currentDirectory,
+                fullFilename,
+                txtFileContent.getText());
 
-        SimulationFile directory = FileSystem.currentDirectory;
-        SimulationFile file = fileSystem.createFile(directory, txtPath.getText(), txtFileContent.getText());
+        // Update tree
+        createTree(fileSystem);
 
         // GUI handling
         PopUp.FileCreatedSuccesfullyPopUp();
@@ -185,7 +207,19 @@ public class WindowController {
 
         TreeItem<SimulationFile> root = new TreeItem<SimulationFile>(FileSystem.root);
 
+        traverseTree(root, FileSystem.root.getFiles());
+
         treeView.setRoot(root);
+    }
+
+    private void traverseTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files) {
+        for (SimulationFile file : files) {
+            treeItem.getChildren().add(new TreeItem<SimulationFile>(file));
+            if (file.isDirectory() && file.getFiles() != null) {
+                traverseTree(new TreeItem<>(), file.getFiles());
+            }
+        }
+
     }
 
     public void initialize() {
@@ -200,6 +234,10 @@ public class WindowController {
                 Bindings.isEmpty(txtPath.textProperty()));
         btnAddDirectory.disableProperty().bind(
                 Bindings.isEmpty(txtPath.textProperty()));
+        btnSaveFile.disableProperty().bind(
+                Bindings.and(
+                        Bindings.isEmpty(txtFilename.textProperty()),
+                        Bindings.isEmpty(txtExtension.textProperty())));
 
         lblAvailableSpace.textProperty().bind(
                 FileSystem.freeSpace.asString("%s characters left"));
@@ -217,25 +255,10 @@ public class WindowController {
                             setGraphic(null);
                         } else {
                             setText(item.getName());
-                            setGraphic(new ImageView(new Image("folder.png", 20, 20, false, false)));
-
-                            // EventDispatcher originalDispatcher = getEventDispatcher();
-                            // setEventDispatcher(
-                            // new TreeMouseEventDispatcher(originalDispatcher, this, currentDirectory));
-                        }
-                        if (getTreeItem() != null) {
-                            // getTreeItem().addEventHandler(TreeItem < SimulationFile > value,
-                            // new EventHandler<TreeItem.TreeModificationEvent>() {
-
-                            // @Override
-                            // public void handle(MouseEvent event) {
-                            // // TODO Auto-generated method stub
-
-                            // }
-
-                            // });
-                            // // update disclosureNode depending on expanded state
-                            // setDisclosureNode(getTreeItem().isExpanded() ? expanded : collapsed);
+                            if (item.isDirectory())
+                                setGraphic(new ImageView(new Image("folder.png", 20, 20, false, false)));
+                            else
+                                setGraphic(new ImageView(new Image("file.png", 20, 20, false, false)));
                         }
                     }
                 };

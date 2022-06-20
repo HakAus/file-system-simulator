@@ -7,56 +7,68 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.TreeCell;
 
-public class SimulationFile extends TreeCell<String> {
+public class SimulationFile {
 
     // Atributes
     private long start, end, size;
     private BooleanProperty isDirectory;
     private StringProperty name;
+    private StringProperty path;
     private Date creationDate;
     private Date lastModified;
     private ArrayList<SimulationFile> files;
     private SimulationFile parent;
 
     // Constructors
+
+    // Default
     SimulationFile() {
         start = end = size = 0;
         isDirectory = new SimpleBooleanProperty();
+        parent = null;
         name = new SimpleStringProperty();
+        path = new SimpleStringProperty();
         lastModified = new Date();
+        files = null;
     }
 
-    SimulationFile(long pStart, long pEnd, long pSize, String pName,
-            Date pLastModified) {
+    // For files
+    SimulationFile(SimulationFile pParent, String pPath, long pStart, long pEnd, long pSize,
+            String pName, Date pLastModified) {
         start = pStart;
         end = pEnd;
         size = pSize;
         isDirectory = new SimpleBooleanProperty(false);
+        parent = pParent;
         name = new SimpleStringProperty(pName);
+        path = new SimpleStringProperty(pPath);
         creationDate = new Date();
         lastModified = pLastModified;
+        files = null;
     }
 
-    SimulationFile(String pName, Date pLastModified) {
+    // For directories
+    SimulationFile(SimulationFile pParent, String pPath, String pName, Date pLastModified) {
         start = end = -1;
         isDirectory = new SimpleBooleanProperty(true);
+        parent = pParent;
         name = new SimpleStringProperty(pName);
+        path = new SimpleStringProperty(pPath);
         lastModified = pLastModified;
+        files = new ArrayList<SimulationFile>();
     }
 
-    // Methods
-    @Override
-    public void updateItem(String simFile, boolean empty) {
-        super.updateItem(simFile, empty);
-        if (empty) {
-            setText(null);
-            setGraphic(null);
-        } else {
-            setText(simFile);
-            setGraphic(getTreeItem().getGraphic());
-        }
+    public StringProperty getPathProperty() {
+        return path;
+    }
+
+    public String getPath() {
+        return path.get();
+    }
+
+    public void setPath(String pPath) {
+        path.set(pPath);
     }
 
     public void addFile(SimulationFile file) {
