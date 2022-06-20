@@ -194,7 +194,8 @@ public class WindowController {
         SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         File file = new File(path);
         String content = readFile.read(path);
-        fileSystem.createFile(destiny, file.getName(), "txt", content);
+        
+        fileSystem.createFile(destiny, file.getName(), getExtensionToPath(path), content);
     }
 
     // @FXML
@@ -205,7 +206,6 @@ public class WindowController {
         String pathDestiny = txtPath.getText();
         WriteFile writeFile = new WriteFile();
         writeFile.write(pathDestiny, content);
-
     }
 
     // @FXML
@@ -216,6 +216,12 @@ public class WindowController {
 
         SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         destiny.getFiles().add(file);
+    }
+
+    public String getExtensionToPath(String path) {
+        String[] parts = path.split("\\.");
+        String extension = parts[parts.length - 1];
+        return extension;
     }
 
     private void createTree(FileSystem fs) {
