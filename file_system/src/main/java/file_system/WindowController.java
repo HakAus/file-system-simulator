@@ -3,15 +3,10 @@ package file_system;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.event.EventDispatcher;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -21,10 +16,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 public class WindowController {
@@ -49,26 +41,6 @@ public class WindowController {
 
     private FileSystem fileSystem;
 
-    // private String getPath(SimulationFile file) {
-    // SimulationFile parent = file.getParentDirectory();
-
-    // if (parent != null) {
-    // return getPath(parent) + "/" + parent.getName();
-    // } else {
-    // return file.getName() + "/";
-    // }
-    // }
-
-    // private String getPathAux(SimulationFile file, String result) {
-    // SimulationFile parent = file.getParentDirectory();
-
-    // if (parent != null) {
-    // return getPath(parent) + "/" + parent.getName();
-    // } else {
-    // return file.getName() + "/";
-    // }
-    // }
-
     @FXML
     void selectItem() {
         TreeItem<SimulationFile> selected = treeView.getSelectionModel().getSelectedItem();
@@ -78,6 +50,15 @@ public class WindowController {
                 FileSystem.currentDirectory = selected.getValue();
             } else {
                 FileSystem.currentFile = selected.getValue();
+
+                // Read the file
+                String fileContent = fileSystem.readFile(selected.getValue());
+                txtFileContent.setText(fileContent);
+                txtFilename.setText(selected.getValue().getName());
+                txtExtension.setText(selected.getValue().getExtension());
+
+                // Show the file
+                toggleFileEditor();
             }
             // String path = getPath(selected.getValue());
             System.out.println("Got the path: " + selected.getValue().getPath());
@@ -118,9 +99,9 @@ public class WindowController {
     void saveFile(ActionEvent event) {
 
         // Get data
-        String fullFilename = txtFilename.getText() + "." + txtExtension.getText();
         SimulationFile file = fileSystem.createFile(FileSystem.currentDirectory,
-                fullFilename,
+                txtFilename.getText(),
+                txtExtension.getText(),
                 txtFileContent.getText());
 
         // Update tree
@@ -219,7 +200,6 @@ public class WindowController {
                 traverseTree(new TreeItem<>(), file.getFiles());
             }
         }
-
     }
 
     public void initialize() {
@@ -235,10 +215,7 @@ public class WindowController {
         btnAddDirectory.disableProperty().bind(
                 Bindings.isEmpty(txtPath.textProperty()));
         btnSaveFile.disableProperty().bind(
-                Bindings.and(
-                        Bindings.isEmpty(txtFilename.textProperty()),
-                        Bindings.isEmpty(txtExtension.textProperty())));
-
+                txtFilename.textProperty().isEmpty().and(txtExtension.textProperty().isEmpty()));
         lblAvailableSpace.textProperty().bind(
                 FileSystem.freeSpace.asString("%s characters left"));
 

@@ -116,7 +116,7 @@
                   </TextField>
                </children>
             </HBox>
-            <Button fx:id="btnSaveFile" alignment="CENTER" mnemonicParsing="false" onAction="#saveFile" prefHeight="25.0" prefWidth="60.0" text="Save" GridPane.columnIndex="4" />
+            <Button fx:id="btnSaveFile" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#saveFile" prefHeight="25.0" prefWidth="60.0" text="Save" GridPane.columnIndex="4" />
             <Button fx:id="btnCancelSaveFile" mnemonicParsing="false" onAction="#cancelSaveFile" prefWidth="60.0" text="Cancel" GridPane.columnIndex="5">
                <GridPane.margin>
                   <Insets right="5.0" />

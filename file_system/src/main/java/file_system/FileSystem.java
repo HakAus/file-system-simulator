@@ -33,7 +33,7 @@ public class FileSystem {
         root = new SimulationFile(null, "root/", "root", new Date());
     }
 
-    public SimulationFile createFile(SimulationFile directory, String fileName, String content) {
+    public SimulationFile createFile(SimulationFile directory, String fileName, String extension, String content) {
         // Check for available space
         SimulationFile file;
         long start, end, size;
@@ -49,9 +49,9 @@ public class FileSystem {
                 size = (long) content.length();
                 end = fileSectors.get(1).longValue();
 
-                String path = currentDirectory.getPath() + fileName;
+                String path = currentDirectory.getPath() + fileName + "." + extension;
                 file = new SimulationFile(currentDirectory, path, start, end,
-                        size, fileName, new Date());
+                        size, fileName, extension, new Date());
 
                 currentDirectory.addFile(file);
 

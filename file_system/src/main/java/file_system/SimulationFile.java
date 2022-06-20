@@ -13,10 +13,8 @@ public class SimulationFile {
     // Atributes
     private long start, end, size;
     private BooleanProperty isDirectory;
-    private StringProperty name;
-    private StringProperty path;
-    private Date creationDate;
-    private Date lastModified;
+    private StringProperty name, path, extension;
+    private Date creationDate, lastModified;
     private ArrayList<SimulationFile> files;
     private SimulationFile parent;
 
@@ -29,13 +27,14 @@ public class SimulationFile {
         parent = null;
         name = new SimpleStringProperty();
         path = new SimpleStringProperty();
+        extension = new SimpleStringProperty();
         lastModified = new Date();
         files = null;
     }
 
     // For files
     SimulationFile(SimulationFile pParent, String pPath, long pStart, long pEnd, long pSize,
-            String pName, Date pLastModified) {
+            String pName, String pExtension, Date pLastModified) {
         start = pStart;
         end = pEnd;
         size = pSize;
@@ -43,6 +42,7 @@ public class SimulationFile {
         parent = pParent;
         name = new SimpleStringProperty(pName);
         path = new SimpleStringProperty(pPath);
+        extension = new SimpleStringProperty(pExtension);
         creationDate = new Date();
         lastModified = pLastModified;
         files = null;
@@ -55,8 +55,21 @@ public class SimulationFile {
         parent = pParent;
         name = new SimpleStringProperty(pName);
         path = new SimpleStringProperty(pPath);
+        extension = new SimpleStringProperty();
         lastModified = pLastModified;
         files = new ArrayList<SimulationFile>();
+    }
+
+    public StringProperty getExtensionProperty() {
+        return extension;
+    }
+
+    public String getExtension() {
+        return extension.get();
+    }
+
+    public void setExtension(String pExtension) {
+        extension.set(pExtension);
     }
 
     public StringProperty getPathProperty() {
@@ -128,12 +141,13 @@ public class SimulationFile {
     }
 
     public String getFullname() {
-        return nameProperty().getName();
+        return getName() + "." + getExtension();
     }
 
-    public String getExtension() {
-        return nameProperty().get().substring(nameProperty().get().lastIndexOf(".") + 1);
-    }
+    // public String getExtension() {
+    // return nameProperty().get().substring(nameProperty().get().lastIndexOf(".") +
+    // 1);
+    // }
 
     public String getCreationDate() {
         return creationDate.toString();
