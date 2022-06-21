@@ -176,8 +176,6 @@ public class FileSystem {
             // Write required sectors
             long newSectorPointer = writeSector(content, disk.getFilePointer(), end);
 
-            System.out.println("NEW FILE POINTER: " + newSectorPointer);
-
             // Write pointer to connect the sectors
 
             // Adjust file pointer

@@ -3,6 +3,7 @@ package file_system;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
@@ -78,7 +79,27 @@ public class WindowController {
 
     @FXML
     void addDirectory(ActionEvent event) {
+        // Create directory
+        String name = txtPath.getText();
+        String[] directories = name.split("/");
+        if (directories.length > 1) {
+            name = directories[directories.length - 1];
 
+            ArrayList<String> results = searching(FileSystem.currentDirectory, name,
+                    FileSystem.currentDirectory.getPath(),
+                    new ArrayList<String>());
+
+            if (results.isEmpty()) {
+                SimulationFile newDirectory = new SimulationFile(FileSystem.currentDirectory,
+                        txtPath.getText(), name, new Date());
+                FileSystem.currentDirectory.addDirectory(newDirectory);
+
+                // Refresh GUI tree
+                createTree();
+            }
+        } else {
+            PopUp.display("Enter a file or directory under root");
+        }
     }
 
     @FXML
@@ -116,7 +137,7 @@ public class WindowController {
         }
 
         // Update tree
-        createTree(fileSystem);
+        createTree();
 
         // GUI handling
         PopUp.display(Constants.FILE_CREATED_SUCCESFULLY);
@@ -136,7 +157,7 @@ public class WindowController {
 
                 // Update tree
                 toggleFileEditor();
-                createTree(fileSystem);
+                createTree();
 
                 // Show message
                 PopUp.display(Constants.FILE_DELETED_SUCCESFULLY);
@@ -158,7 +179,15 @@ public class WindowController {
         SimulationFile root = FileSystem.currentDirectory; // get the root directory PENDIENTE
         String currentPath = root.getName() + "/";
 
-        searching(root, search, currentPath, results);
+        results = searching(root, search, currentPath, results);
+
+        if (!results.isEmpty()) {
+            String[] filteredPaths = new String[results.size()];
+            filteredPaths = results.toArray(filteredPaths);
+            createFilteredTree(filteredPaths);
+        } else {
+            createTree();
+        }
     }
 
     // @FXML
@@ -194,7 +223,7 @@ public class WindowController {
         SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
         File file = new File(path);
         String content = readFile.read(path);
-        
+
         fileSystem.createFile(destiny, file.getName(), getExtensionToPath(path), content);
     }
 
@@ -224,7 +253,7 @@ public class WindowController {
         return extension;
     }
 
-    private void createTree(FileSystem fs) {
+    private void createTree() {
 
         TreeItem<SimulationFile> root = new TreeItem<SimulationFile>(FileSystem.root);
 
@@ -232,14 +261,60 @@ public class WindowController {
 
         treeView.setRoot(root);
 
+        System.out.println("Root");
+
+        txtPath.setText(FileSystem.currentDirectory.getPath());
+    }
+
+    private void createFilteredTree(String[] filterPaths) {
+
+        System.out.println("Creando arbol ...");
+
+        TreeItem<SimulationFile> root = new TreeItem<SimulationFile>(FileSystem.root);
+
+        traverseFilteredTree(root, FileSystem.root.getFiles(), filterPaths);
+
+        treeView.setRoot(root);
+
+        System.out.println("Root");
+
         txtPath.setText(FileSystem.currentDirectory.getPath());
     }
 
     private void traverseTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files) {
         for (SimulationFile file : files) {
-            treeItem.getChildren().add(new TreeItem<SimulationFile>(file));
-            if (file.isDirectory() && file.getFiles() != null) {
-                traverseTree(new TreeItem<>(), file.getFiles());
+            System.out.println("Item: " + file.getName());
+            TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
+            if (file.isDirectory()) {
+                if (file.getFiles() != null) {
+                    traverseTree(newItem, file.getFiles());
+                }
+                treeItem.getChildren().add(newItem);
+            } else {
+                treeItem.getChildren().add(newItem);
+            }
+        }
+    }
+
+    private void traverseFilteredTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files,
+            String[] filteredPaths) {
+        for (SimulationFile file : files) {
+            System.out.println("file.getPath() -> " + file.getPath());
+            for (String path : filteredPaths) {
+                System.out.println("path -> " + path);
+
+                if (file.getPath() == path) {
+                    System.out.println("Item: " + file.getName());
+                    TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
+                    if (file.isDirectory()) {
+                        if (file.getFiles() != null) {
+                            traverseTree(newItem, file.getFiles());
+                        }
+                        treeItem.getChildren().add(newItem);
+                    } else {
+                        treeItem.getChildren().add(newItem);
+                    }
+                }
             }
         }
     }
@@ -247,7 +322,7 @@ public class WindowController {
     public void initialize() {
         fileSystem = new FileSystem();
 
-        createTree(fileSystem);
+        createTree();
 
         // GUI bindings
         btnSearch.disableProperty().bind(
@@ -303,16 +378,22 @@ public class WindowController {
             ArrayList<String> results) {
 
         ArrayList<SimulationFile> files = directory.getFiles();
-        for (SimulationFile file : files) {
-            if (!file.isDirectory()) {
-                if (file.getFullname().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
-                    results.add(currentPath + file.getFullname());
+        if (files != null) {
+            for (SimulationFile file : files) {
+                if (file.isDirectory()) {
+                    if (file.getName().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
+                        results.add(currentPath + file.getName());
+                    }
+                } else {
+                    if (file.getFullname().contains(search)) {
+                        results.add(currentPath + "/" + file.getFullname());
+                    }
+                    results = searching(file, search, currentPath + file.getName() + "/", results);
                 }
-            } else {
-                if (file.getName().contains(search)) {
-                    results.add(currentPath + file.getName());
-                }
-                results = searching(file, search, currentPath + file.getName() + "/", results);
+            }
+        } else {
+            if (directory.getName().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
+                results.add(currentPath + directory.getName());
             }
         }
 

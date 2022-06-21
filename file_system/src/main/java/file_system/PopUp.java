@@ -8,24 +8,12 @@ import javafx.stage.*;
 
 public class PopUp {
 
-    public static void display(String mode) {
+    public static void display(String message) {
         Stage popupWindow = new Stage();
         popupWindow.initModality(Modality.APPLICATION_MODAL);
 
         popupWindow.setTitle("Add file");
-
-        switch (mode) {
-            case Constants.FILE_CREATED_SUCCESFULLY:
-                popupWindow.setScene(createScene(popupWindow, "File created succesfully!"));
-                break;
-            case Constants.FILE_DELETED_SUCCESFULLY:
-                popupWindow.setScene(createScene(popupWindow, "File deleted succesfully!"));
-            case Constants.ERROR_NO_AVAILABLE_MEMORY:
-                popupWindow.setScene(createScene(popupWindow, "There's not enough memory to write the file! :("));
-
-            default:
-                break;
-        }
+        popupWindow.setScene(createScene(popupWindow, message));
 
         popupWindow.showAndWait();
 
