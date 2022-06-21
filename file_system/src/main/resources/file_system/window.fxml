@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane fx:id="window" prefHeight="619.0" prefWidth="797.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="file_system.WindowController">
+<GridPane fx:id="window" prefHeight="619.0" prefWidth="797.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="file_system.WindowController">
    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="225.0" minWidth="10.0" prefWidth="190.0" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="204.0" minWidth="10.0" prefWidth="204.0" />
@@ -71,6 +71,7 @@
                         <Insets bottom="10.0" left="5.0" top="10.0" />
                      </HBox.margin>
                   </Button>
+                  <Button fx:id="btnProperties" layoutX="724.0" layoutY="20.0" mnemonicParsing="false" onAction="#getProperties" text="Properties" />
                </children>
                <VBox.margin>
                   <Insets bottom="2.0" left="10.0" right="10.0" />

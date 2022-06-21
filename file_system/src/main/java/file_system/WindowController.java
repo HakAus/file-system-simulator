@@ -40,6 +40,9 @@ public class WindowController {
     @FXML
     private Label lblAvailableSpace;
 
+    @FXML
+    private Button btnProperties;
+
     private FileSystem fileSystem;
     private SimulationFile selectedItem;
 
@@ -190,7 +193,7 @@ public class WindowController {
         }
     }
 
-    // @FXML
+    @FXML
     void getProperties(ActionEvent event) {
         SimulationFile file = FileSystem.currentFile;
         String properties = "";
@@ -201,9 +204,10 @@ public class WindowController {
         properties += "Modification Date: " + file.getModificationDate() + "\n";
 
         System.out.println(properties);
+        PopUp.display(properties);
     }
 
-    // @FXML
+    @FXML
     void move() {
         System.out.println("Move");
         SimulationFile file = FileSystem.currentDirectory;
