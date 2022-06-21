@@ -37,32 +37,40 @@
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="btnAddFile" alignment="CENTER" mnemonicParsing="false" onAction="#addFile" prefHeight="25.0" prefWidth="88.0" text="Add File">
+                  <TextField fx:id="txtSearchBox" prefHeight="25.0" prefWidth="471.0" promptText="example.ext" HBox.hgrow="ALWAYS">
                      <HBox.margin>
-                        <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
-                     </HBox.margin>
-                  </Button>
-                  <Button fx:id="btnAddDirectory" alignment="CENTER" mnemonicParsing="false" onAction="#addDirectory" prefHeight="25.0" prefWidth="116.0" text="Add Directory">
-                     <HBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </HBox.margin>
-                  </Button>
-                  <TextField fx:id="txtSearchBox" prefHeight="25.0" prefWidth="441.0" promptText="example.ext">
-                     <HBox.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        <Insets bottom="10.0" left="10.0" right="5.0" top="10.0" />
                      </HBox.margin>
                   </TextField>
-                  <Button fx:id="btnSearch" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="148.0" text="Search" HBox.hgrow="ALWAYS">
+                  <Button fx:id="btnSearch" disable="true" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="81.0" text="Search" HBox.hgrow="ALWAYS">
                      <HBox.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
                      </HBox.margin>
                   </Button>
                </children>
             </HBox>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="103.0" text="Current directory:" HBox.hgrow="ALWAYS" />
-                  <TextField fx:id="txtCurrentDirectory" editable="false" promptText="directory/subdirectory/file.ext" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="txtPath" promptText="directory/subdirectory/file.ext" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin></TextField>
+                  <Button fx:id="btnAddFile" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#addFile" prefHeight="26.0" prefWidth="71.0" text="Add File">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="btnAddDirectory" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#addDirectory" prefHeight="26.0" prefWidth="97.0" text="Add Directory">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" text="Delete">
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="5.0" top="10.0" />
+                     </HBox.margin>
+                  </Button>
                </children>
                <VBox.margin>
                   <Insets bottom="2.0" left="10.0" right="10.0" />
@@ -72,43 +80,33 @@
       </VBox>
       <GridPane fx:id="fileEditor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="522.0" prefWidth="600.0" visible="false" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.rowSpan="2147483647" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
          <columnConstraints>
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="174.0" minWidth="10.0" prefWidth="110.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="10.0" prefWidth="130.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="10.0" prefWidth="106.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="111.0" minWidth="10.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="103.0" minWidth="10.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="116.0" minWidth="10.0" prefWidth="78.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="174.0" minWidth="10.0" prefWidth="128.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="10.0" prefWidth="154.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="10.0" prefWidth="80.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="111.0" minWidth="10.0" prefWidth="80.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="103.0" minWidth="10.0" prefWidth="78.0" />
          </columnConstraints>
          <rowConstraints>
             <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="101.0" minHeight="0.0" prefHeight="27.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="210.0" minHeight="10.0" prefHeight="78.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="186.0" minHeight="10.0" prefHeight="186.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="78.0" minHeight="10.0" prefHeight="57.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="65.0" minHeight="10.0" prefHeight="53.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="54.0" minHeight="10.0" prefHeight="54.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <TextField fx:id="txtFilename" GridPane.columnIndex="1" GridPane.columnSpan="2">
-               <GridPane.margin>
-                  <Insets right="5.0" />
-               </GridPane.margin>
-            </TextField>
             <Label alignment="CENTER" text="Filename:">
                <GridPane.margin>
                   <Insets left="5.0" />
                </GridPane.margin>
             </Label>
-            <Button fx:id="btnSaveFile" alignment="CENTER" mnemonicParsing="false" onAction="#saveFile" prefHeight="25.0" prefWidth="60.0" text="Save" GridPane.columnIndex="4" />
-            <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#cancelSaveFile" prefWidth="60.0" text="Cancel" GridPane.columnIndex="5">
+            <TextField fx:id="txtFilename" GridPane.columnIndex="1" GridPane.columnSpan="2">
                <GridPane.margin>
                   <Insets right="5.0" />
                </GridPane.margin>
-            </Button>
-            <TextArea fx:id="txtFileContent" prefHeight="440.0" prefWidth="580.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" />
-               </GridPane.margin>
-            </TextArea>
+            </TextField>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
                <children>
                   <Label alignment="CENTER" text=".">
@@ -123,11 +121,27 @@
                   </TextField>
                </children>
             </HBox>
+            <Button fx:id="btnSaveFile" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#saveFile" prefHeight="25.0" prefWidth="60.0" text="Save" GridPane.columnIndex="4" />
+            <Button fx:id="btnCancelSaveFile" mnemonicParsing="false" onAction="#cancelSaveFile" prefWidth="60.0" text="Cancel" GridPane.columnIndex="5">
+               <GridPane.margin>
+                  <Insets right="5.0" />
+               </GridPane.margin>
+            </Button>
+            <TextArea fx:id="txtFileContent" prefHeight="440.0" prefWidth="580.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
+               <GridPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" />
+               </GridPane.margin>
+            </TextArea>
+            <VBox prefHeight="200.0" prefWidth="100.0" />
+            <Label fx:id="lblAvailableSpace" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
          </children>
+         <GridPane.margin>
+            <Insets top="5.0" />
+         </GridPane.margin>
       </GridPane>
       <TreeView fx:id="treeView" onContextMenuRequested="#selectItemOptions" onMouseClicked="#selectItem" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" GridPane.rowSpan="2147483647">
          <GridPane.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" />
+            <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
          </GridPane.margin>
       </TreeView>
    </children>

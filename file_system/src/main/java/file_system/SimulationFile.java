@@ -7,65 +7,102 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.TreeCell;
 
-public class SimulationFile extends TreeCell<String> {
+public class SimulationFile {
 
     // Atributes
     private long start, end, size;
     private BooleanProperty isDirectory;
-    private StringProperty name;
-    private Date creationDate;
-    private Date lastModified;
+    private StringProperty name, path, extension;
+    private Date creationDate, lastModified;
     private ArrayList<SimulationFile> files;
-    private ArrayList<Long> sectors;
     private SimulationFile parent;
 
     // Constructors
+
+    // Default
     SimulationFile() {
         start = end = size = 0;
         isDirectory = new SimpleBooleanProperty();
+        parent = null;
         name = new SimpleStringProperty();
+        path = new SimpleStringProperty();
+        extension = new SimpleStringProperty();
         lastModified = new Date();
-        sectors = new ArrayList<Long>();
+        files = null;
     }
 
-    SimulationFile(long pStart, long pEnd, long pSize, String pName,
-            Date pLastModified, ArrayList<Long> pSectors) {
+    // For files
+    SimulationFile(SimulationFile pParent, String pPath, long pStart, long pEnd, long pSize,
+            String pName, String pExtension, Date pLastModified) {
         start = pStart;
         end = pEnd;
         size = pSize;
         isDirectory = new SimpleBooleanProperty(false);
+        parent = pParent;
         name = new SimpleStringProperty(pName);
+        path = new SimpleStringProperty(pPath);
+        extension = new SimpleStringProperty(pExtension);
         creationDate = new Date();
         lastModified = pLastModified;
-        sectors = pSectors;
+        files = null;
     }
 
-    SimulationFile(String pName, Date pLastModified) {
+    // For directories
+    SimulationFile(SimulationFile pParent, String pPath, String pName, Date pLastModified) {
         start = end = -1;
         isDirectory = new SimpleBooleanProperty(true);
+        parent = pParent;
         name = new SimpleStringProperty(pName);
+        path = new SimpleStringProperty(pPath);
+        extension = new SimpleStringProperty();
         lastModified = pLastModified;
-        sectors = null;
+        files = new ArrayList<SimulationFile>();
     }
 
-    // Methods
-    @Override
-    public void updateItem(String simFile, boolean empty) {
-        super.updateItem(simFile, empty);
-        if (empty) {
-            setText(null);
-            setGraphic(null);
-        } else {
-            setText(simFile);
-            setGraphic(getTreeItem().getGraphic());
+    public StringProperty getExtensionProperty() {
+        return extension;
+    }
+
+    public String getExtension() {
+        return extension.get();
+    }
+
+    public void setExtension(String pExtension) {
+        extension.set(pExtension);
+    }
+
+    public StringProperty getPathProperty() {
+        return path;
+    }
+
+    public String getPath() {
+        return path.get();
+    }
+
+    public void setPath(String pPath) {
+        path.set(pPath);
+    }
+
+    public void upsertFile(SimulationFile pFile) {
+
+        pFile.setIsDirectory(false);
+
+        // Check if file already exists
+        ArrayList<String> foundFiles = new ArrayList<>();
+        for (SimulationFile file : files) {
+            if (!file.isDirectory()) {
+                if (file.getFullname().contains(pFile.getFullname())) {
+                    // If found, update de file
+                    file = pFile;
+                    foundFiles.add(file.getFullname());
+                }
+            }
         }
-    }
 
-    public void addFile(SimulationFile file) {
-        file.setIsDirectory(false);
-        files.add(file);
+        // Add new file only if no other files with the same name exist
+        if (foundFiles.isEmpty())
+            files.add(pFile);
     }
 
     public void addDirectory(SimulationFile directory) {
@@ -77,7 +114,7 @@ public class SimulationFile extends TreeCell<String> {
         return start;
     }
 
-    public void setStart(int value) {
+    public void setStart(long value) {
         start = value;
     }
 
@@ -85,7 +122,7 @@ public class SimulationFile extends TreeCell<String> {
         return end;
     }
 
-    public void setEnd(int value) {
+    public void setEnd(long value) {
         end = value;
     }
 
@@ -93,7 +130,7 @@ public class SimulationFile extends TreeCell<String> {
         return size;
     }
 
-    public void setSize(int value) {
+    public void setSize(long value) {
         size = value;
     }
 
@@ -119,19 +156,20 @@ public class SimulationFile extends TreeCell<String> {
         return nameProperty().get();
     }
 
-    public String getFullname(){
-        return nameProperty().getName();
+    public String getFullname() {
+        return getName() + "." + getExtension();
     }
 
-    public String getExtension() {
-        return nameProperty().get().substring(nameProperty().get().lastIndexOf(".") + 1);
-    }
+    // public String getExtension() {
+    // return nameProperty().get().substring(nameProperty().get().lastIndexOf(".") +
+    // 1);
+    // }
 
-    public String getCreationDate(){
+    public String getCreationDate() {
         return creationDate.toString();
     }
 
-    public String getModificationDate(){
+    public String getModificationDate() {
         return lastModified.toString();
     }
 

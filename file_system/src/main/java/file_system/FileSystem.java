@@ -6,19 +6,20 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 
 public class FileSystem {
 
-    // private static TreeItem<SimulationFile> currentDirectory;
-    private ArrayList<SimulationFile> tree;
     private RandomAccessFile disk;
-    public static int freeSpace;
+    public static IntegerProperty freeSpace;
     public static int sectorSize;
+    public static int pointerSize;
     public static int sectorAmount;
+    public static SimulationFile root;
     public static SimulationFile currentDirectory;
     public static SimulationFile currentFile;
 
@@ -28,64 +29,295 @@ public class FileSystem {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        freeSpace = sectorAmount * sectorSize;
+        freeSpace = new SimpleIntegerProperty(0);
+        root = new SimulationFile(null, "root/", "root", new Date());
+        currentDirectory = root;
+        currentFile = null;
     }
 
-    public void createFile(SimulationFile directory, String fileName, String content) {
+    public void createFile(SimulationFile directory, String fileName, String extension, String content) {
         // Check for available space
         SimulationFile file;
         long start, end, size;
         start = end = size = 0;
-        System.out.println("Content length: " + content.length() + " freeSpace: " + freeSpace);
-        if (content.length() < freeSpace) {
+
+        if (content.length() < freeSpace.get()) {
             try {
-                ArrayList<Long> writtenSectors = writeToSectors(fileName);
-                start = writtenSectors.get(0).longValue();
+                // File is written to disc
+                ArrayList<Long> fileSectors = writeFile(content);
+
+                // File system file creation
+                start = fileSectors.get(0).longValue();
                 size = (long) content.length();
-                end = writtenSectors.get(writtenSectors.size() - 1).longValue();
-                file = new SimulationFile(start, end, size, fileName, new Date(), writtenSectors);
+                end = fileSectors.get(1).longValue();
+
+                String path = currentDirectory.getPath() + fileName + "." + extension;
+                file = new SimulationFile(currentDirectory, path, start, end,
+                        size, fileName, extension, new Date());
+
+                // File is added to the directory
+                currentDirectory.upsertFile(file);
+
                 currentFile = file;
-                // directory.addFile(file);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
+            PopUp.display(Constants.ERROR_NO_AVAILABLE_MEMORY);
+            System.out.println("No hay espacio");
+        }
+    }
+
+    public void updateFile(SimulationFile file, String content) {
+        if (content.length() < freeSpace.get()) {
+            try {
+                // File is written to disc
+                ArrayList<Long> fileSectors = updateFileSectors(file, content);
+
+                // File system file creation
+                file.setStart(fileSectors.get(0).longValue());
+                file.setSize((long) content.length());
+                file.setEnd(fileSectors.get(1).longValue());
+                file.setLastModified(new Date());
+
+                // File is added to the directory
+                currentDirectory.upsertFile(file);
+
+                currentFile = file;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            PopUp.display(Constants.ERROR_NO_AVAILABLE_MEMORY);
             System.out.println("No hay espacio");
         }
     }
 
     public void createdDirectory(SimulationFile parent, String name) {
-        parent.addDirectory(new SimulationFile(name, new Date()));
+        parent.addDirectory(new SimulationFile(parent, parent.getPath() + "/" + name, name, new Date()));
     }
 
-    public ArrayList<Long> writeToSectors(String content) throws IOException {
-        int writtenChars = 0;
-        int currentChar = 0;
-        ArrayList<Long> sectors = new ArrayList<>();
-        while (writtenChars < content.length() && (disk.getFilePointer() + 1) < freeSpace) {
-            // Read char
-            long position = disk.getFilePointer();
-            char c = (char) disk.read();
-            if (c == Constants.FREE_SPACE) {
-                // fill sector
-                disk.seek(position);
-                sectors.add(position);
-                for (int i = 0; i < sectorSize && currentChar < content.length(); i++) {
-                    disk.writeByte(content.charAt(currentChar));
-                    currentChar++;
-                    writtenChars++;
+    public long writeSector(String content, long position, long end) throws IOException {
+
+        // Lookup sector
+        disk.seek(position);
+        char block = (char) disk.read();
+        disk.seek(position);
+
+        if (block == Constants.FREE_SPACE) {
+            // Write to sector
+            for (int i = 0; i < sectorSize - pointerSize; i++) {
+                disk.writeByte(content.charAt(0));
+                content = content.length() > 1 ? content = content.substring(1, content.length()) : "";
+
+                if (content.isEmpty()) {
+                    end = position;
+                    return end;
                 }
-            } else {
-                // Go to next sector
-                disk.seek(disk.getFilePointer() - 1 + sectorSize);
+            }
+
+            // Get next sector index
+            long sectorIdx = writeSector(content, disk.getFilePointer() + pointerSize, end);
+
+            // Convert position to hex
+            String pointer = Integer.toHexString((int) sectorIdx);
+
+            // Adjust file pointer
+            disk.seek(position + (sectorSize - pointerSize));
+
+            // Write pointer
+            int cont = 0;
+            for (int i = 0; i < pointerSize; i++) {
+                if (i < pointerSize - pointer.length())
+                    disk.writeByte('0');
+                else {
+                    disk.writeByte(pointer.charAt(cont));
+                    cont++;
+                }
+            }
+            return position;
+
+        } else {
+            // Go to next sector
+            return writeSector(content, disk.getFilePointer() + sectorSize, end);
+        }
+    }
+
+    public Long updateSector(String content, long position, long end, long originalSize) throws IOException {
+
+        // Lookup sector
+        disk.seek(position);
+
+        // Write to sector
+        for (int i = 0; i < sectorSize - pointerSize; i++) {
+            disk.writeByte(content.charAt(0));
+            content = content.length() > 1 ? content = content.substring(1, content.length()) : "";
+            originalSize -= 1;
+
+            if (content.isEmpty()) {
+                end = position;
+                return end;
             }
         }
-        disk.seek(0);
-        return sectors;
+
+        // Get next sector index
+        String pointer = "";
+        for (int i = 0; i < pointerSize; i++) {
+            pointer += (char) disk.read();
+        }
+
+        // Check if its the end to continue writting sectors normally or continue
+        // updating
+        long pointerDec = Long.parseLong(pointer, 16);
+        if (pointerDec == end) {
+            // Reset pointer
+            disk.seek(0);
+
+            // Write required sectors
+            long newSectorPointer = writeSector(content, disk.getFilePointer(), end);
+
+            // Write pointer to connect the sectors
+
+            // Adjust file pointer
+            disk.seek(position + (sectorSize - pointerSize));
+
+            // From int to hex
+            pointer = Long.toHexString(newSectorPointer);
+
+            // Write pointer
+            int cont = 0;
+            for (int i = 0; i < pointerSize; i++) {
+                if (i < pointerSize - pointer.length())
+                    disk.writeByte('0');
+                else {
+                    disk.writeByte(pointer.charAt(cont));
+                    cont++;
+                }
+            }
+
+            return (long) 0;
+        } else {
+            return updateSector(content, pointerDec, end, originalSize);
+        }
+
     }
 
-    public void writeFile(String content) {
+    public String readSector(long offset, long blocksLeft)
+            throws IOException, NumberFormatException {
+        // Lookup sector
+        disk.seek(offset);
 
+        // Read sector
+        int dataLimitSize = sectorSize - pointerSize;
+        String pointer = "";
+        String content = "";
+        for (int i = 0; i < sectorSize; i++) {
+
+            if (i >= dataLimitSize) {
+                pointer += (char) disk.read();
+            } else {
+                content += (char) disk.read();
+                blocksLeft--;
+
+                if (blocksLeft == 0) {
+                    int left = sectorSize - i - 1;
+                    for (int j = 0; j < left; j++) {
+                        disk.read();
+                    }
+                    return content;
+                }
+            }
+        }
+
+        // hexadecimal to decimal
+        long pointerDec = Long.parseLong(pointer, 16);
+
+        return content + readSector(pointerDec, blocksLeft);
+
+    }
+
+    public void deleteSector(long offset, long blocksLeft) throws IOException {
+        // Lookup sector
+        disk.seek(offset);
+
+        // Read sector
+        int contentSize = sectorSize - pointerSize;
+        String pointer = "";
+        for (int i = 0; i < sectorSize; i++) {
+
+            if (i >= contentSize) {
+                pointer += (char) disk.read();
+                disk.seek(disk.getFilePointer() - 1);
+                disk.writeByte('0');
+            } else {
+                disk.writeByte('0');
+                blocksLeft--;
+
+                if (blocksLeft == 0) {
+                    int left = sectorSize - i - 1;
+                    for (int j = 0; j < left; j++) {
+                        disk.read();
+                    }
+                    return;
+                }
+            }
+        }
+
+        // hexadecimal to decimal
+        long pointerDec = Long.parseLong(pointer, 16);
+
+        deleteSector(pointerDec, blocksLeft);
+    }
+
+    public ArrayList<Long> writeFile(String content) throws IOException {
+
+        ArrayList<Long> result = new ArrayList<>();
+        if (freeSpace.get() > content.length()) {
+            long end = 0;
+            long start = writeSector(content, disk.getFilePointer(), end);
+            result.add(start);
+            result.add(end);
+            freeSpace.set(freeSpace.get() - content.length());
+        }
+
+        // Reset disc file pointer
+        disk.seek(0);
+
+        return result;
+    }
+
+    public ArrayList<Long> updateFileSectors(SimulationFile file, String content) throws IOException {
+
+        ArrayList<Long> result = new ArrayList<>();
+        if (freeSpace.get() + file.getSize() > content.length()) {
+            long end = 0;
+            long start = updateSector(content, file.getStart(), file.getEnd(), file.getSize());
+            result.add(start);
+            result.add(end);
+            freeSpace.set(freeSpace.get() - content.length());
+        }
+
+        // Reset disc file pointer
+        disk.seek(0);
+
+        return result;
+    }
+
+    public String readFile(SimulationFile file) {
+        try {
+            return readSector(file.getStart(), file.getSize());
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
+    public void deleteFile(SimulationFile file) throws IOException {
+        // Remove file from disk
+        deleteSector(file.getStart(), file.getSize());
+
+        // Remove file form file system
+        SimulationFile parent = file.getParentDirectory();
+        parent.getFiles().remove(file);
     }
 
     // Creating the mouse event handler

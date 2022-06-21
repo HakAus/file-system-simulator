@@ -1,6 +1,5 @@
 package file_system;
 
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -9,30 +8,19 @@ import javafx.stage.*;
 
 public class PopUp {
 
-    private static void display(String mode) {
+    public static void display(String message) {
         Stage popupWindow = new Stage();
         popupWindow.initModality(Modality.APPLICATION_MODAL);
 
         popupWindow.setTitle("Add file");
-
-        switch (mode) {
-            case Constants.FILE_CREATED_SUCCESFULLY:
-                popupWindow.setScene(fileCreatedScene(popupWindow));
-                break;
-            default:
-                break;
-        }
+        popupWindow.setScene(createScene(popupWindow, message));
 
         popupWindow.showAndWait();
 
     }
 
-    public static void FileCreatedSuccesfullyPopUp() {
-        display(Constants.FILE_CREATED_SUCCESFULLY);
-    }
-
-    private static Scene fileCreatedScene(Stage stage) {
-        Label label = new Label("Se creó el archivo correctamente");
+    private static Scene createScene(Stage stage, String message) {
+        Label label = new Label(message);
 
         Button button = new Button("Aceptar");
 
