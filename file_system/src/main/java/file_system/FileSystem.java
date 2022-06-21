@@ -16,12 +16,8 @@ public class FileSystem {
 
     private RandomAccessFile disk;
     public static IntegerProperty freeSpace;
-    public static int sectorSize;
-    public static int pointerSize;
-    public static int sectorAmount;
-    public static SimulationFile root;
-    public static SimulationFile currentDirectory;
-    public static SimulationFile currentFile;
+    public static int sectorSize, pointerSize, sectorAmount;
+    public static SimulationFile root, currentDirectory, destinationDirectory, currentFile;
 
     FileSystem() {
         try {
