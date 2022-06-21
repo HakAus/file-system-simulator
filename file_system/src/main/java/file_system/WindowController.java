@@ -23,7 +23,7 @@ import javafx.util.Callback;
 public class WindowController {
 
     @FXML
-    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch, btnMoveTo;
+    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch, btnMoveTo, btnProperties, btnCopyRealToVirtual, btnCopyVirtualToReal, btnCopyVirtualToVirtual;
 
     @FXML
     private TreeView<SimulationFile> treeView;
@@ -39,9 +39,6 @@ public class WindowController {
 
     @FXML
     private Label lblAvailableSpace;
-
-    @FXML
-    private Button btnProperties;
 
     private FileSystem fileSystem;
     private SimulationFile selectedItem;
@@ -209,48 +206,62 @@ public class WindowController {
 
     @FXML
     void move() {
-        PopUp.showFileSystem(fileSystem);
-        // System.out.println("Move");
-        // SimulationFile file = FileSystem.currentDirectory;
-
-        // SimulationFile parent = file.getParentDirectory();
-        // parent.getFiles().remove(file);
-
-        // SimulationFile newParent = FileSystem.currentDirectory; // OBTENER EL
-        // SELECCIONADO COMO DESTINO
-        // newParent.getFiles().add(file);
-    }
-
-    // @FXML
-    void copy1() throws IOException { // Ruta real a virtual // TAMBIEN REVISAR PORQUE TENIA MUCHO SUE:O
-        System.out.println("Copy");
-        String path = txtPath.getText();
-        ReadFile readFile = new ReadFile();
-        SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
-        File file = new File(path);
-        String content = readFile.read(path);
-
-        fileSystem.createFile(destiny, file.getName(), getExtensionToPath(path), content);
-    }
-
-    // @FXML
-    void copy2() { // Ruta virtual a real
-        System.out.println("Copy");
-        SimulationFile file = FileSystem.currentFile;
-        String content = file.getName(); // getContent(); // AQUI SE USARA LA FUNCION DE VER FILE
-        String pathDestiny = txtPath.getText();
-        WriteFile writeFile = new WriteFile();
-        writeFile.write(pathDestiny, content);
-    }
-
-    // @FXML
-    void copy3() { // Ruta real a real
-        System.out.println("Copy");
-
+        System.out.println("Move");
         SimulationFile file = FileSystem.currentDirectory;
 
-        SimulationFile destiny = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
+        PopUp.showFileSystem(fileSystem);
+
+        SimulationFile parent = file.getParentDirectory();
+        parent.getFiles().remove(file);
+
+        SimulationFile newParent = FileSystem.destinationDirectory;
+
+        newParent.getFiles().add(file);
+
+        createTree();
+    }
+
+    @FXML
+    void copyRealToVirtual() throws IOException { // Ruta real a virtual 
+        System.out.println("Copy Real file to virtual");
+        String path = txtSearchBox.getText();
+        ReadFile readFile = new ReadFile();
+        SimulationFile destiny = FileSystem.currentDirectory; 
+        File file = new File(path);
+        String content = readFile.read(path);
+        String name = file.getName().replaceFirst("[.][^.]+$", "");
+
+        fileSystem.createFile(destiny, name, getExtensionToPath(path), content);
+
+        createTree();
+        PopUp.display(Constants.FILE_COPY_SUCCESFULLY);
+    }
+
+    @FXML
+    void copyVirtualToReal() { // Ruta virtual a real
+        System.out.println("Copy virtual file to real");
+        SimulationFile file = FileSystem.currentFile;
+        String content = fileSystem.readFile(file);
+        String pathDestiny = txtSearchBox.getText() + "\\" + file.getFullname();
+
+        WriteFile writeFile = new WriteFile();
+        writeFile.write(pathDestiny, content);
+
+        PopUp.display(Constants.FILE_COPY_SUCCESFULLY);
+    }
+
+
+    @FXML
+    void copyVirtualToVirtual() { // Ruta real a real
+        System.out.println("Copy virtual file to virtual");
+
+        SimulationFile file = FileSystem.currentFile;
+        PopUp.showFileSystem(fileSystem);
+        SimulationFile destiny = FileSystem.destinationDirectory; 
         destiny.getFiles().add(file);
+
+        createTree();
+        PopUp.display(Constants.FILE_COPY_SUCCESFULLY);
     }
 
     public String getExtensionToPath(String path) {

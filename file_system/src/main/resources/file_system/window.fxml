@@ -47,6 +47,8 @@
                         <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
                      </HBox.margin>
                   </Button>
+                  <Button fx:id="btnCopyRealToVirtual" mnemonicParsing="false" onAction="#copyRealToVirtual" text="Copy Real File" />
+                  <Button fx:id="btnCopyVirtualToReal" mnemonicParsing="false" onAction="#copyVirtualToReal" text="Copy to Real" />
                </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
@@ -76,6 +78,7 @@
                      </HBox.margin>
                   </Button>
                   <Button fx:id="btnProperties" layoutX="724.0" layoutY="20.0" mnemonicParsing="false" onAction="#getProperties" text="Properties" />
+                  <Button fx:id="btnCopyVirtualToVirtual" layoutX="550.0" layoutY="20.0" mnemonicParsing="false" onAction="#copyVirtualToVirtual" text="Copy Virtual to Virtual" />
                </children>
                <VBox.margin>
                   <Insets bottom="2.0" left="10.0" right="10.0" />
