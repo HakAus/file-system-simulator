@@ -40,6 +40,7 @@ public class SimulationFile {
         size = pSize;
         isDirectory = new SimpleBooleanProperty(false);
         parent = pParent;
+        parent.getFiles().add(this);
         name = new SimpleStringProperty(pName);
         path = new SimpleStringProperty(pPath);
         extension = new SimpleStringProperty(pExtension);
@@ -90,12 +91,12 @@ public class SimulationFile {
 
         // Check if file already exists
         ArrayList<String> foundFiles = new ArrayList<>();
-        for (SimulationFile file : files) {
-            if (!file.isDirectory()) {
-                if (file.getFullname().contains(pFile.getFullname())) {
+        for (int i = 0; i < files.size(); i++) {
+            if (!files.get(i).isDirectory()) {
+                if (files.get(i).getFullname().equals(pFile.getFullname())) {
                     // If found, update de file
-                    file = pFile;
-                    foundFiles.add(file.getFullname());
+                    files.set(i, pFile);
+                    foundFiles.add(files.get(i).getFullname());
                 }
             }
         }
