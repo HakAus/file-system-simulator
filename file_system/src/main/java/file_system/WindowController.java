@@ -277,22 +277,6 @@ public class WindowController {
         txtPath.setText(FileSystem.currentDirectory.getPath());
     }
 
-    // private void createFilteredTree(String[] filterPaths) {
-
-    // System.out.println("Creando arbol ...");
-
-    // TreeItem<SimulationFile> root = new
-    // TreeItem<SimulationFile>(FileSystem.root);
-
-    // traverseFilteredTree(root, FileSystem.root.getFiles(), filterPaths, root);
-
-    // treeView.setRoot(root);
-
-    // System.out.println("Root");
-
-    // txtPath.setText(FileSystem.currentDirectory.getPath());
-    // }
-
     private void traverseTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files) {
         for (SimulationFile file : files) {
             System.out.println("Item: " + file.getName());
@@ -307,94 +291,6 @@ public class WindowController {
             }
         }
     }
-
-    // private void traverseFilteredTree(TreeItem<SimulationFile> treeItem,
-    // ArrayList<SimulationFile> files,
-    // String[] filteredPaths, TreeItem<SimulationFile> root) {
-    // for (SimulationFile file : files) {
-    // System.out.println("file.getPath() -> " + file.getPath() + " largo: " +
-    // file.getPath().length());
-    // for (String path : filteredPaths) {
-    // System.out.println("path -> " + path + " largo: " + path.length());
-
-    // TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
-
-    // if (file.getPath().equals(path)) {
-
-    // System.out.println("Los paths son iguales");
-    // if (file.isDirectory()) {
-    // System.out.println("Es un directorio");
-    // if (file.getFiles() != null) {
-    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths, root);
-
-    // // Leaf reached
-    // root.getChildren().add(recreateBranch(newItem));
-    // } else {
-    // // Leaf reached
-    // root.getChildren().add(recreateBranch(newItem));
-
-    // }
-    // } else {
-    // System.out.println("Agregando archivo");
-    // treeItem.getChildren().add(newItem);
-    // }
-    // } else {
-    // if (file.getFiles() != null) {
-    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths, root);
-    // treeItem.getChildren().add(newItem);
-    // } else {
-    // System.out.println("No tiene files internos");
-    // }
-    // }
-    // }
-    // }
-    // }
-
-    // private TreeItem<SimulationFile> recreateBranch(TreeItem<SimulationFile>
-    // item) {
-    // if (item.equals(FileSystem.root)) {
-    // return item;
-    // }
-    // TreeItem<SimulationFile> parent = new
-    // TreeItem<SimulationFile>(item.getValue().getParentDirectory());
-    // parent.getChildren().add(item);
-    // return recreateBranch(parent);
-    // }
-    // private void traverseFilteredTree(TreeItem<SimulationFile> treeItem,
-    // ArrayList<SimulationFile> files,
-    // String[] filteredPaths) {
-    // for (SimulationFile file : files) {
-    // System.out.println("file.getPath() -> " + file.getPath() + " largo: " +
-    // file.getPath().length());
-    // for (String path : filteredPaths) {
-    // System.out.println("path -> " + path + " largo: " + path.length());
-
-    // TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
-
-    // if (file.getPath().equals(path)) {
-    // System.out.println("Los paths son iguales");
-    // if (file.isDirectory()) {
-    // System.out.println("Es un directorio");
-    // if (file.getFiles() != null) {
-    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths);
-    // }
-    // System.out.println("Agregando el directorio");
-    // treeItem.getChildren().add(newItem);
-    // } else {
-    // System.out.println("Agregando archivo");
-    // treeItem.getChildren().add(newItem);
-    // }
-    // } else {
-    // if (file.getFiles() != null) {
-    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths);
-    // treeItem.getChildren().add(newItem);
-    // } else {
-    // System.out.println("No tiene files internos");
-    // }
-    // }
-    // }
-    // }
-    // }
 
     public void initialize() {
         fileSystem = new FileSystem();
