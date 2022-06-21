@@ -23,7 +23,8 @@ import javafx.util.Callback;
 public class WindowController {
 
     @FXML
-    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch, btnMoveTo, btnProperties, btnCopyRealToVirtual, btnCopyVirtualToReal, btnCopyVirtualToVirtual;
+    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch, btnMoveTo, btnProperties,
+            btnCopyRealToVirtual, btnCopyVirtualToReal, btnCopyVirtualToVirtual;
 
     @FXML
     private TreeView<SimulationFile> treeView;
@@ -231,11 +232,11 @@ public class WindowController {
     }
 
     @FXML
-    void copyRealToVirtual() throws IOException { // Ruta real a virtual 
+    void copyRealToVirtual() throws IOException { // Ruta real a virtual
         System.out.println("Copy Real file to virtual");
         String path = txtSearchBox.getText();
         ReadFile readFile = new ReadFile();
-        SimulationFile destiny = FileSystem.currentDirectory; 
+        SimulationFile destiny = FileSystem.currentDirectory;
         File file = new File(path);
         String content = readFile.read(path);
         String name = file.getName().replaceFirst("[.][^.]+$", "");
@@ -259,14 +260,13 @@ public class WindowController {
         PopUp.display(Constants.FILE_COPY_SUCCESFULLY);
     }
 
-
     @FXML
     void copyVirtualToVirtual() { // Ruta real a real
         System.out.println("Copy virtual file to virtual");
 
         SimulationFile file = FileSystem.currentFile;
         PopUp.showFileSystem(fileSystem);
-        SimulationFile destiny = FileSystem.destinationDirectory; 
+        SimulationFile destiny = FileSystem.destinationDirectory;
         destiny.getFiles().add(file);
 
         createTree();
