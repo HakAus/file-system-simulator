@@ -85,7 +85,7 @@ public class WindowController {
         if (directories.length > 1) {
             name = directories[directories.length - 1];
 
-            ArrayList<String> results = searching(FileSystem.currentDirectory, name,
+            ArrayList<String> results = checkExistence(FileSystem.currentDirectory, name,
                     FileSystem.currentDirectory.getPath(),
                     new ArrayList<String>());
 
@@ -121,7 +121,7 @@ public class WindowController {
     @FXML
     void saveFile(ActionEvent event) {
 
-        ArrayList<String> results = searching(FileSystem.currentDirectory, txtFilename.getText(),
+        ArrayList<String> results = checkExistence(FileSystem.currentDirectory, txtFilename.getText(),
                 FileSystem.currentDirectory.getPath(),
                 new ArrayList<String>());
 
@@ -177,14 +177,23 @@ public class WindowController {
         // Search in the tree
         ArrayList<String> results = new ArrayList<String>();
         SimulationFile root = FileSystem.currentDirectory; // get the root directory PENDIENTE
-        String currentPath = root.getName() + "/";
+        String currentPath = root.getPath();
 
+        System.out.println("BUSCANDO");
+        System.out.println("Search: " + search);
+        System.out.println("Current path: " + currentPath);
         results = searching(root, search, currentPath, results);
 
         if (!results.isEmpty()) {
             String[] filteredPaths = new String[results.size()];
             filteredPaths = results.toArray(filteredPaths);
-            createFilteredTree(filteredPaths);
+            String message = "";
+            for (String path : filteredPaths) {
+                message += path + "\n";
+            }
+
+            PopUp.display(message);
+            // createFilteredTree(filteredPaths);
         } else {
             createTree();
         }
@@ -283,20 +292,21 @@ public class WindowController {
         txtPath.setText(FileSystem.currentDirectory.getPath());
     }
 
-    private void createFilteredTree(String[] filterPaths) {
+    // private void createFilteredTree(String[] filterPaths) {
 
-        System.out.println("Creando arbol ...");
+    // System.out.println("Creando arbol ...");
 
-        TreeItem<SimulationFile> root = new TreeItem<SimulationFile>(FileSystem.root);
+    // TreeItem<SimulationFile> root = new
+    // TreeItem<SimulationFile>(FileSystem.root);
 
-        traverseFilteredTree(root, FileSystem.root.getFiles(), filterPaths);
+    // traverseFilteredTree(root, FileSystem.root.getFiles(), filterPaths, root);
 
-        treeView.setRoot(root);
+    // treeView.setRoot(root);
 
-        System.out.println("Root");
+    // System.out.println("Root");
 
-        txtPath.setText(FileSystem.currentDirectory.getPath());
-    }
+    // txtPath.setText(FileSystem.currentDirectory.getPath());
+    // }
 
     private void traverseTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files) {
         for (SimulationFile file : files) {
@@ -313,28 +323,93 @@ public class WindowController {
         }
     }
 
-    private void traverseFilteredTree(TreeItem<SimulationFile> treeItem, ArrayList<SimulationFile> files,
-            String[] filteredPaths) {
-        for (SimulationFile file : files) {
-            System.out.println("file.getPath() -> " + file.getPath());
-            for (String path : filteredPaths) {
-                System.out.println("path -> " + path);
+    // private void traverseFilteredTree(TreeItem<SimulationFile> treeItem,
+    // ArrayList<SimulationFile> files,
+    // String[] filteredPaths, TreeItem<SimulationFile> root) {
+    // for (SimulationFile file : files) {
+    // System.out.println("file.getPath() -> " + file.getPath() + " largo: " +
+    // file.getPath().length());
+    // for (String path : filteredPaths) {
+    // System.out.println("path -> " + path + " largo: " + path.length());
 
-                if (file.getPath() == path) {
-                    System.out.println("Item: " + file.getName());
-                    TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
-                    if (file.isDirectory()) {
-                        if (file.getFiles() != null) {
-                            traverseTree(newItem, file.getFiles());
-                        }
-                        treeItem.getChildren().add(newItem);
-                    } else {
-                        treeItem.getChildren().add(newItem);
-                    }
-                }
-            }
-        }
-    }
+    // TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
+
+    // if (file.getPath().equals(path)) {
+
+    // System.out.println("Los paths son iguales");
+    // if (file.isDirectory()) {
+    // System.out.println("Es un directorio");
+    // if (file.getFiles() != null) {
+    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths, root);
+
+    // // Leaf reached
+    // root.getChildren().add(recreateBranch(newItem));
+    // } else {
+    // // Leaf reached
+    // root.getChildren().add(recreateBranch(newItem));
+
+    // }
+    // } else {
+    // System.out.println("Agregando archivo");
+    // treeItem.getChildren().add(newItem);
+    // }
+    // } else {
+    // if (file.getFiles() != null) {
+    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths, root);
+    // treeItem.getChildren().add(newItem);
+    // } else {
+    // System.out.println("No tiene files internos");
+    // }
+    // }
+    // }
+    // }
+    // }
+
+    // private TreeItem<SimulationFile> recreateBranch(TreeItem<SimulationFile>
+    // item) {
+    // if (item.equals(FileSystem.root)) {
+    // return item;
+    // }
+    // TreeItem<SimulationFile> parent = new
+    // TreeItem<SimulationFile>(item.getValue().getParentDirectory());
+    // parent.getChildren().add(item);
+    // return recreateBranch(parent);
+    // }
+    // private void traverseFilteredTree(TreeItem<SimulationFile> treeItem,
+    // ArrayList<SimulationFile> files,
+    // String[] filteredPaths) {
+    // for (SimulationFile file : files) {
+    // System.out.println("file.getPath() -> " + file.getPath() + " largo: " +
+    // file.getPath().length());
+    // for (String path : filteredPaths) {
+    // System.out.println("path -> " + path + " largo: " + path.length());
+
+    // TreeItem<SimulationFile> newItem = new TreeItem<SimulationFile>(file);
+
+    // if (file.getPath().equals(path)) {
+    // System.out.println("Los paths son iguales");
+    // if (file.isDirectory()) {
+    // System.out.println("Es un directorio");
+    // if (file.getFiles() != null) {
+    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths);
+    // }
+    // System.out.println("Agregando el directorio");
+    // treeItem.getChildren().add(newItem);
+    // } else {
+    // System.out.println("Agregando archivo");
+    // treeItem.getChildren().add(newItem);
+    // }
+    // } else {
+    // if (file.getFiles() != null) {
+    // traverseFilteredTree(newItem, file.getFiles(), filteredPaths);
+    // treeItem.getChildren().add(newItem);
+    // } else {
+    // System.out.println("No tiene files internos");
+    // }
+    // }
+    // }
+    // }
+    // }
 
     public void initialize() {
         fileSystem = new FileSystem();
@@ -391,6 +466,32 @@ public class WindowController {
         return false;
     }
 
+    private ArrayList<String> checkExistence(SimulationFile directory, String search, String currentPath,
+            ArrayList<String> results) {
+        ArrayList<SimulationFile> files = directory.getFiles();
+        if (files != null) {
+            for (SimulationFile file : files) {
+                if (file.isDirectory()) {
+                    if (file.getName().equals(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
+                        results.add(currentPath + file.getName());
+                    }
+                    results = searching(file, search, currentPath + file.getName() + "/", results);
+                } else {
+                    if (file.getFullname().equals(search)) {
+                        results.add(currentPath + file.getFullname());
+                    }
+                }
+            }
+        } else {
+            if (directory.getName().equals(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
+                results.add(currentPath + directory.getName());
+            }
+        }
+
+        System.out.println("Resultados: " + results);
+        return results;
+    }
+
     private ArrayList<String> searching(SimulationFile directory, String search, String currentPath,
             ArrayList<String> results) {
 
@@ -401,11 +502,11 @@ public class WindowController {
                     if (file.getName().contains(search)) { // HACER EXPRESION REGULAR PARA LOS CASOS DE *.???
                         results.add(currentPath + file.getName());
                     }
+                    results = searching(file, search, currentPath + file.getName() + "/", results);
                 } else {
                     if (file.getFullname().contains(search)) {
-                        results.add(currentPath + "/" + file.getFullname());
+                        results.add(currentPath + file.getFullname());
                     }
-                    results = searching(file, search, currentPath + file.getName() + "/", results);
                 }
             }
         } else {

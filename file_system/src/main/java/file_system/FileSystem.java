@@ -47,7 +47,7 @@ public class FileSystem {
                 size = (long) content.length();
                 end = fileSectors.get(1).longValue();
 
-                String path = currentDirectory.getPath() + fileName + "." + extension;
+                String path = currentDirectory.getPath() + "/" + fileName + "." + extension;
                 file = new SimulationFile(currentDirectory, path, start, end,
                         size, fileName, extension, new Date());
 
