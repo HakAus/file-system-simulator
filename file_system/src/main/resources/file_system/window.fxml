@@ -51,7 +51,6 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Label contentDisplay="RIGHT" prefHeight="25.0" prefWidth="103.0" text="Current directory:" HBox.hgrow="ALWAYS" />
                   <TextField fx:id="txtPath" promptText="directory/subdirectory/file.ext" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets right="5.0" />
@@ -63,7 +62,12 @@
                   </Button>
                   <Button fx:id="btnAddDirectory" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#addDirectory" prefHeight="26.0" prefWidth="97.0" text="Add Directory">
                      <HBox.margin>
-                        <Insets bottom="5.0" left="5.0" top="5.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="btnMoveTo" mnemonicParsing="false" onAction="#move" text="Move to">
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
                      </HBox.margin>
                   </Button>
                   <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" text="Delete">

@@ -23,7 +23,7 @@ import javafx.util.Callback;
 public class WindowController {
 
     @FXML
-    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch;
+    private Button btnAddDirectory, btnAddFile, btnCancelSaveFile, btnSaveFile, btnSearch, btnMoveTo;
 
     @FXML
     private TreeView<SimulationFile> treeView;
@@ -209,14 +209,16 @@ public class WindowController {
 
     @FXML
     void move() {
-        System.out.println("Move");
-        SimulationFile file = FileSystem.currentDirectory;
+        PopUp.showFileSystem(fileSystem);
+        // System.out.println("Move");
+        // SimulationFile file = FileSystem.currentDirectory;
 
-        SimulationFile parent = file.getParentDirectory();
-        parent.getFiles().remove(file);
+        // SimulationFile parent = file.getParentDirectory();
+        // parent.getFiles().remove(file);
 
-        SimulationFile newParent = FileSystem.currentDirectory; // OBTENER EL SELECCIONADO COMO DESTINO
-        newParent.getFiles().add(file);
+        // SimulationFile newParent = FileSystem.currentDirectory; // OBTENER EL
+        // SELECCIONADO COMO DESTINO
+        // newParent.getFiles().add(file);
     }
 
     // @FXML
@@ -403,5 +405,9 @@ public class WindowController {
 
         System.out.println("Resultados: " + results);
         return results;
+    }
+
+    public FileSystem getFileSystem() {
+        return fileSystem;
     }
 }
